@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 class Button(QPushButton):
         def __init__(self, text:str = "") -> None:
             super().__init__(text)
-            self.setFixedSize(200, 50)
+            self.setFixedSize(250, 50)
 
             self.enterEvent = self.on_enter
             self.leaveEvent = self.on_leave
