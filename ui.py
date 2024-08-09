@@ -39,8 +39,8 @@ class UserLogin(QWidget):
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
-        self.enter_btn = Botton("Enter")
-        self.registr_btn = Botton("Registration")
+        self.enter_btn = Button("Enter")
+        self.registr_btn = Button("Registration")
 
 
 
@@ -103,8 +103,8 @@ class UserLogin(QWidget):
             self.title_right = QLabel("Najot Pharmacy")
             self.login_input = Edit("Enter a your login...")
             self.password_input = Edit("Enter a your password...")
-            self.user_btn = Botton("Login as a user")
-            self.admin_btn = Botton("Login as a admin")
+            self.user_btn = Button("Login as a user")
+            self.admin_btn = Button("Login as a admin")
 
             self.box_btn.addWidget(self.user_btn)
             self.box_btn.addWidget(self.admin_btn)
