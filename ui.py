@@ -25,9 +25,7 @@ class UserLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("login_icon.png"))
-        # self.setStyleSheet("""
-        #     background-image: url('C:/Users/user/Desktop/RealProject/beground.jpg'); 
-        # """)
+
         self.UIinit()
         self.show()
     
@@ -41,12 +39,6 @@ class UserLogin(QWidget):
         self.password_input = Edit("Enter a your password...")
         self.enter_btn = Button("Enter")
         self.registr_btn = Button("Registration")
-
-
-
-        #left
-
-
 
 
         #add right
@@ -68,9 +60,6 @@ class UserLogin(QWidget):
         #add all
         self.setLayout(self.main_box)
 
-        #stle
-
-
 
         self.login_input.setFixedSize(500, 50)
         self.password_input.setFixedSize(500, 50)
@@ -82,16 +71,13 @@ class UserLogin(QWidget):
         """)
 
 
-
     class AdminLogin(QWidget):
         def __init__(self) -> None:
             super().__init__()
             self.showMaximized()
             self.setWindowTitle("Login Page")
             self.setWindowIcon(QIcon("login_icon.png"))
-            # self.setStyleSheet("""
-            #     background-image: url('C:/Users/user/Desktop/RealProject/beground.jpg'); 
-            # """)
+
             self.UIinit()
             self.show()
         
@@ -108,10 +94,6 @@ class UserLogin(QWidget):
 
             self.box_btn.addWidget(self.user_btn)
             self.box_btn.addWidget(self.admin_btn)
-
-
-            #left
-
 
 
 
@@ -131,9 +113,6 @@ class UserLogin(QWidget):
 
             #add all
             self.setLayout(self.main_box)
-
-            #stle
-
 
 
             self.login_input.setFixedSize(500, 50)
