@@ -67,8 +67,12 @@ class UserLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("logo.png"))
+<<<<<<< HEAD
         self.core  = Database()
 
+=======
+        self.core = Database()
+>>>>>>> 96e418285606b351f2677657c1725ba4928f0595
         self.UIinit()
         self.show()
     
@@ -106,7 +110,7 @@ class UserLogin(QWidget):
         #add all
         self.setLayout(self.main_box)
 
-
+        #style
         self.login_input.setFixedSize(500, 50)
         self.password_input.setFixedSize(500, 50)
         self.title_right.setStyleSheet("""
@@ -115,11 +119,34 @@ class UserLogin(QWidget):
             color: #211C6A;
             font-weight: 600;
         """)
+        self.info_label.setStyleSheet("""
+            color: red;
+            font-size: 30px;
+        """)
+
     
     def Enter_user_page(self):
+<<<<<<< HEAD
         items = self.core.Get_all_medicine_items() # items listda keladi
         self.close()   
         self.Med_buy_page = Medicine_buy(items)
+=======
+        username = self.login_input.text()
+        password = self.password_input.text()
+
+        # user = self.core.get_user_data()
+        
+        if not (username and password):
+            self.info_label.setText("Empty username or password!!!")
+            return
+        self.info_label.clear()
+        user = {
+            'login' : username,
+            'password' : password
+        }
+        self.close()
+        self.admin_page = Medicine_buy()
+>>>>>>> 96e418285606b351f2677657c1725ba4928f0595
 
     def user_register(self):
         self.close()
@@ -212,10 +239,10 @@ class RegistrationPage(QWidget):
         self.v_box.addWidget(self.password_input, 0, Qt.AlignCenter)
 
         self.v_box.addStretch(5)
-        self.v_box.addWidget(self.warning_user, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
         self.v_box.addStretch(5)
         self.v_box.addWidget(self.phone_number_input, 0, Qt.AlignCenter)
-        self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.warning_number, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
         self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
         self.v_box.addStretch(40)
@@ -229,14 +256,22 @@ class RegistrationPage(QWidget):
         self.username_input.setFixedSize(450, 50)
         self.password_input.setFixedSize(450, 50)
         self.phone_number_input.setFixedSize(450, 50)
-        self.phone_number_input.setText("+998 ")
+        # self.phone_number_input.setText("+998 ")
+        self.phone_number_input.setPlaceholderText("+998-90-123-45-67")
 
         self.title.setStyleSheet("""
             font-size: 60px;
             font-weight: 600;
             color: #FF8225;
         """)
-
+        self.warning_number.setStyleSheet("""
+            font-size: 30px;
+            color: red;
+        """)
+        self.info_label.setStyleSheet("""
+            font-size: 30px;
+            color: red;
+        """)
 
 
     def create_user(self):
@@ -246,11 +281,15 @@ class RegistrationPage(QWidget):
         phone_number = self.phone_number_input.text()
         self.info_label.clear()
         if not (username and password):
-            self.info_label.setText("Empty login or password")
+            self.info_label.setText("Empty login or password!!!")
             return
-        elif not phone_number:
-            self.info_label.setText("Empty phone number")
+        if not phone_number:
+            self.warning_number.setText("Empty phone number!!!")
             return
+        if not (phone_number[1:].isdigit() and phone_number[0] == "+" and len(phone_number) == 12):
+            self.warning_number.setText("Enter the number correctly!!!")
+            return
+
         user = {
             'username' : username,
             'password' : password,
