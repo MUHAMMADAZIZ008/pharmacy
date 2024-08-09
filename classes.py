@@ -15,8 +15,8 @@ class Button(QPushButton):
             self.setStyleSheet("""
             QPushButton{
                 padding: 10px;
-                background-color: #071952;
-                color: #EBF4F6;
+                background-color: #FF8225;
+                color: #fff;
                 font-size: 25px;
                 font-family: sans-serif;
                 border: 0;
@@ -24,9 +24,9 @@ class Button(QPushButton):
                 font-weight: 600;
             }
             QPushButton:hover{
-                background-color: #fff;
-                color: #071952;
-                border: 3px solid #071952;
+                background-color: #03C988;
+                color: #fff;
+                
             }
              """)
         def on_enter(self, event):
@@ -44,6 +44,7 @@ class Edit(QLineEdit):
             self.setPlaceholderText(text)
             self.setStyleSheet("""
                 QLineEdit{
+                    padding: 10px;
                     background-color: rgba(255, 255, 255, 0);
                     font-size: 25px;
                     font-family: sans-serif;

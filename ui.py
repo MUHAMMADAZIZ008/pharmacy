@@ -42,14 +42,6 @@ class mainPage(QWidget):
         self.paintEvent(1)
 
 
-        image_path = "C:\\User\\user\\Desktop\\RealProject\\background.jpg"
-        self.setStyleSheet("""
-            #MainWidget{
-                background-image: url("beground.jpg");
-                background-repeat: no-repeat;
-                background-position: center;
-            }
-        """)
         self.main_title.setStyleSheet("""
             font-size: 60px;
             font-family: sans-serif;
@@ -65,7 +57,7 @@ class mainPage(QWidget):
         self.close()
     def paintEvent(self, event):
         painter = QPainter(self)
-        pixmap = QPixmap("beground.jpg") 
+        pixmap = QPixmap("main_bg2.jpg") 
         painter.drawPixmap(self.rect(), pixmap) 
         painter.end()
 
@@ -85,6 +77,7 @@ class UserLogin(QWidget):
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
+        self.info_label = QLabel()
         self.enter_btn = Button("Enter")
         self.enter_btn.clicked.connect(self.Enter_user_page)
         self.registr_btn = Button("Registration")
@@ -97,6 +90,8 @@ class UserLogin(QWidget):
         self.right_box.addWidget(self.login_input, 0, Qt.AlignCenter)
         self.right_box.addStretch(20)
         self.right_box.addWidget(self.password_input, 0, Qt.AlignCenter)
+        self.right_box.addStretch(10)
+        self.right_box.addWidget(self.info_label, 0, Qt.AlignCenter)
 
         self.right_box.addStretch(20)
         self.right_box.addWidget(self.enter_btn, 0, Qt.AlignCenter)
@@ -121,14 +116,16 @@ class UserLogin(QWidget):
     
     def Enter_user_page(self):
         self.close()
-        username = self.login_input.text()
-        password = self.password_input.text()
-
-        user = {
-            'login' : username,
-            'password' : password
-            }
-        self.admin_page = AdminLogin(user)
+        # username = self.login_input.text()
+        # password = self.password_input.text()
+        # if not (username and password):
+        #     self.info_label.setText("Empty username or password")
+        #     return
+        # user = {
+        #     'login' : username,
+        #     'password' : password
+        # }
+        self.admin_page = Medicine_buy()
 
     def user_register(self):
         self.close()
@@ -200,28 +197,52 @@ class RegistrationPage(QWidget):
     
     def initUI(self):
         self.v_box = QVBoxLayout()
-
-        self.username_input = Edit()
-        self.password_input = Edit()
+        self.title = QLabel("Registration")
+        self.username_input = Edit("Username")
+        self.password_input = Edit("Password")
         self.phone_number_input = Edit()
-        # self.password_input.setEchoMode(QLineEdit.Password)
+        self.warning_user = QLabel()
+        self.warning_number = QLabel()
+        self.password_input.setEchoMode(QLineEdit.Password)
 
         self.info_label = QLabel()
 
         self.save_btn = Button("Save user")
         self.save_btn.clicked.connect(self.create_user)
 
-        self.v_box.addStretch(80)
+        self.v_box.addStretch(50)
+        self.v_box.addWidget(self.title, 0, Qt.AlignCenter)
+        self.v_box.addStretch(30)
         self.v_box.addWidget(self.username_input, 0, Qt.AlignCenter)
+        self.v_box.addStretch(5)
         self.v_box.addWidget(self.password_input, 0, Qt.AlignCenter)
+
+        self.v_box.addStretch(5)
+        self.v_box.addWidget(self.warning_user, 0, Qt.AlignCenter)
+        self.v_box.addStretch(5)
         self.v_box.addWidget(self.phone_number_input, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
-        self.v_box.addStretch(5)
+        self.v_box.addStretch(3)
         self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
         self.v_box.addStretch(40)
 
+        self.style()
+
         self.setLayout(self.v_box)
         self.show()
+
+    def style(self):
+        self.username_input.setFixedSize(450, 50)
+        self.password_input.setFixedSize(450, 50)
+        self.phone_number_input.setFixedSize(450, 50)
+        self.phone_number_input.setText("+998 ")
+
+        self.title.setStyleSheet("""
+            font-size: 60px;
+            font-weight: 600;
+            color: #FF8225;
+        """)
+
 
 
     def create_user(self):
@@ -245,7 +266,14 @@ class RegistrationPage(QWidget):
         if err:
             self.info_label.setText("Incorrect login or password")
         
-
+class Medicine_buy(QWidget):
+        def __init__(self) -> None:
+            super().__init__()
+            self.showMaximized()
+            self.setWindowTitle("Najot Pharmacy")
+            self.setWindowIcon(QIcon("login_icon.png"))
+            # self.UIinit()
+            self.show()
 
 
 app = QApplication([])
