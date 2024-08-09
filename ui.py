@@ -7,9 +7,9 @@ from PyQt5.QtWidgets import(
     QLayout,
     QLabel,
     QTableView,
-    QHeaderView
+    QHeaderView,
 )
-from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel, QPainter
 from PyQt5.QtCore import Qt
 
 from core import *
@@ -20,19 +20,42 @@ class mainPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.showMaximized()
+        self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("Main Page")
         self.v_box = QVBoxLayout()
         self.user_btn = Button("Enter as a user")
         self.admin_btn = Button("Enter as a admin")
+
+        self.main_title = QLabel("Najot Pharmacy")
+
         self.user_btn.clicked.connect(self.enter_user_page)
         self.admin_btn.clicked.connect(self.enter_admin_page)
 
+        self.v_box.addWidget(self.main_title, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.user_btn, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.admin_btn, 0, Qt.AlignCenter)
 
         self.setLayout(self.v_box)
         self.show()
 
+        #style
+        self.paintEvent(1)
+
+
+        image_path = "C:\\User\\user\\Desktop\\RealProject\\background.jpg"
+        self.setStyleSheet("""
+            #MainWidget{
+                background-image: url("beground.jpg");
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+        """)
+        self.main_title.setStyleSheet("""
+            font-size: 60px;
+            font-family: sans-serif;
+            color: #211C6A;
+            font-weight: 600;
+        """)
     def enter_user_page(self):
         self.open_user_page = UserLogin()
         self.close()
@@ -40,14 +63,18 @@ class mainPage(QWidget):
     def enter_admin_page(self):
         self.open_admin_page = AdminLogin()
         self.close()
-
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        pixmap = QPixmap("beground.jpg") 
+        painter.drawPixmap(self.rect(), pixmap) 
+        painter.end()
 
 class UserLogin(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.showMaximized()
         self.setWindowTitle("Login Page")
-        self.setWindowIcon(QIcon("login_icon.png"))
+        self.setWindowIcon(QIcon("logo.png"))
         self.UIinit()
         self.show()
     
