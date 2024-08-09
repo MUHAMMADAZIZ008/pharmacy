@@ -67,12 +67,7 @@ class UserLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("logo.png"))
-<<<<<<< HEAD
-        self.core  = Database()
-
-=======
         self.core = Database()
->>>>>>> 96e418285606b351f2677657c1725ba4928f0595
         self.UIinit()
         self.show()
     
@@ -126,11 +121,6 @@ class UserLogin(QWidget):
 
     
     def Enter_user_page(self):
-<<<<<<< HEAD
-        items = self.core.Get_all_medicine_items() # items listda keladi
-        self.close()   
-        self.Med_buy_page = Medicine_buy(items)
-=======
         username = self.login_input.text()
         password = self.password_input.text()
 
@@ -146,7 +136,6 @@ class UserLogin(QWidget):
         }
         self.close()
         self.admin_page = Medicine_buy()
->>>>>>> 96e418285606b351f2677657c1725ba4928f0595
 
     def user_register(self):
         self.close()
