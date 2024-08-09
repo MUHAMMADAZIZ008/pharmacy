@@ -25,9 +25,6 @@ class UserLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("login_icon.png"))
-        # self.setStyleSheet("""
-        #     background-image: url('C:/Users/user/Desktop/RealProject/beground.jpg'); 
-        # """)
         self.UIinit()
         self.show()
     
@@ -39,8 +36,8 @@ class UserLogin(QWidget):
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
-        self.user_btn = Bottom("Login as a user")
-        self.admin_btn = Bottom("Login as a admin")
+        self.user_btn = Botton("Login as a user")
+        self.admin_btn = Botton("Login as a admin")
 
         self.box_btn.addWidget(self.user_btn)
         self.box_btn.addWidget(self.admin_btn)
@@ -93,9 +90,6 @@ class UserLogin(QWidget):
             self.showMaximized()
             self.setWindowTitle("Login Page")
             self.setWindowIcon(QIcon("login_icon.png"))
-            # self.setStyleSheet("""
-            #     background-image: url('C:/Users/user/Desktop/RealProject/beground.jpg'); 
-            # """)
             self.UIinit()
             self.show()
         
@@ -107,8 +101,8 @@ class UserLogin(QWidget):
             self.title_right = QLabel("Najot Pharmacy")
             self.login_input = Edit("Enter a your login...")
             self.password_input = Edit("Enter a your password...")
-            self.user_btn = Bottom("Login as a user")
-            self.admin_btn = Bottom("Login as a admin")
+            self.enter_btn = Botton("Enter")
+            self.admin_btn = Botton("Login as a admin")
 
             self.box_btn.addWidget(self.user_btn)
             self.box_btn.addWidget(self.admin_btn)
