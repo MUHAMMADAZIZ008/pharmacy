@@ -34,4 +34,6 @@ CREATE TABLE Users_data(
     phone_number VARCHAR(15)
 );
 
+
+
 SELECT * FROM Medicine_items;

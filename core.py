@@ -1,3 +1,4 @@
+#Bismillah
 import mysql.connector
 from mysql.connector import Error
 
@@ -6,10 +7,25 @@ class Database:
         self.connection = mysql.connector.connect(
             host = 'localhost',
             user = 'root',
-            password = 'password',
-            database = 'chat_db'
+            password = 'mr2344',
+            database = 'pharmacy'
         )
- 
+
+# User qo'shish
+
+    def insert_user(self, user: dict):
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute(f'''
+                    INSERT INTO users_data (username, password, phone_number) 
+                    VALUES ('{user['username']}','{user['password']}','{user['phone_number']}')
+                ''')
+                self.connection.commit()
+                return False
+        except Error as err:
+            return str(err)
+
+
 # bitta userni ma'lumotlarini olish va yuborish
 
     def get_user_data(self, user: dict):

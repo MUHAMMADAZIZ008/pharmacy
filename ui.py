@@ -6,16 +6,15 @@ from PyQt5.QtWidgets import(
     QHBoxLayout,
     QLayout,
     QLabel,
-    QPushButton,
-    QLineEdit,
     QTableView,
     QHeaderView
 )
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
 
-from classes import *
+from core import *
 
+from classes import *
 
 class mainPage(QWidget):
     def __init__(self) -> None:
@@ -37,11 +36,10 @@ class mainPage(QWidget):
     def enter_user_page(self):
         self.open_user_page = UserLogin()
         self.close()
+
     def enter_admin_page(self):
         self.open_admin_page = AdminLogin()
         self.close()
-
-
 
 
 class UserLogin(QWidget):
@@ -57,17 +55,13 @@ class UserLogin(QWidget):
         self.main_box = QHBoxLayout()
         self.right_box = QVBoxLayout()
 
-
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
         self.enter_btn = Button("Enter")
-        self.enter_btn.clicked.connect(self.chage_user_page)
+        self.enter_btn.clicked.connect(self.Enter_user_page)
         self.registr_btn = Button("Registration")
-
-
-
-
+        self.registr_btn.clicked.connect(self.user_register)
 
         #add right
         self.right_box.addStretch(100)
@@ -98,12 +92,20 @@ class UserLogin(QWidget):
             font-weight: 600;
         """)
     
-    def chage_user_page(self):
-        pass
-        # self._user_page = ShowUsersPage()
-        # self.close()
+    def Enter_user_page(self):
+        self.close()
+        username = self.login_input.text()
+        password = self.password_input.text()
 
+        user = {
+            'login' : username,
+            'password' : password
+            }
+        self.admin_page = AdminLogin(user)
 
+    def user_register(self):
+        self.close()
+        self.registration = RegistrationPage()
 
 class AdminLogin(QWidget):
     def __init__(self) -> None:
@@ -125,8 +127,6 @@ class AdminLogin(QWidget):
         self.registr_btn = Button("Registration")
 
 
-
-
             #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
@@ -146,8 +146,6 @@ class AdminLogin(QWidget):
         #add all
         self.setLayout(self.main_box)
 
-        #stle
-
 
 
         self.login_input.setFixedSize(500, 50)
@@ -162,6 +160,64 @@ class AdminLogin(QWidget):
 
         self.registr_btn.setFixedSize(245, 60)
 
+class RegistrationPage(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Registration")
+        self.showMaximized()
+        self.setStyleSheet("""
+            font-size: 30px
+        """)
+
+        self.initUI()
+    
+    def initUI(self):
+        self.v_box = QVBoxLayout()
+
+        self.username_input = Edit()
+        self.password_input = Edit()
+        self.phone_number_input = Edit()
+        # self.password_input.setEchoMode(QLineEdit.Password)
+
+        self.info_label = QLabel()
+
+        self.save_btn = Button("Save user")
+        self.save_btn.clicked.connect(self.create_user)
+
+        self.v_box.addStretch(80)
+        self.v_box.addWidget(self.username_input, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.password_input, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.phone_number_input, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
+        self.v_box.addStretch(5)
+        self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
+        self.v_box.addStretch(40)
+
+        self.setLayout(self.v_box)
+        self.show()
+
+
+    def create_user(self):
+        self.core = Database()
+        username = self.username_input.text()
+        password = self.password_input.text()
+        phone_number = self.phone_number_input.text()
+        self.info_label.clear()
+        if not (username and password):
+            self.info_label.setText("Empty login or password")
+            return
+        elif not phone_number:
+            self.info_label.setText("Empty phone number")
+            return
+        user = {
+            'username' : username,
+            'password' : password,
+            'phone_number': phone_number
+        } 
+        err = self.core.insert_user(user)
+        if err:
+            self.info_label.setText("Incorrect login or password")
+        
 
 
 
