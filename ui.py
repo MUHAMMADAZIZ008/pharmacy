@@ -34,16 +34,14 @@ class UserLogin(QWidget):
     def UIinit(self):
         self.main_box = QHBoxLayout()
         self.right_box = QVBoxLayout()
-        self.box_btn = QHBoxLayout()
+
 
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
-        self.user_btn = Bottom("Login as a user")
-        self.admin_btn = Bottom("Login as a admin")
+        self.enter_btn = Botton("Enter")
+        self.registr_btn = Botton("Registration")
 
-        self.box_btn.addWidget(self.user_btn)
-        self.box_btn.addWidget(self.admin_btn)
 
 
         #left
@@ -60,7 +58,9 @@ class UserLogin(QWidget):
         self.right_box.addWidget(self.password_input, 0, Qt.AlignCenter)
 
         self.right_box.addStretch(20)
-        self.right_box.addLayout(self.box_btn)
+        self.right_box.addWidget(self.enter_btn, 0, Qt.AlignCenter)
+        self.right_box.addStretch(20)
+        self.right_box.addWidget(self.registr_btn, 0, Qt.AlignCenter)
         self.right_box.addStretch(100)
 
         self.main_box.addLayout(self.right_box)
@@ -80,10 +80,6 @@ class UserLogin(QWidget):
             color: #211C6A;
             font-weight: 600;
         """)
-        self.user_btn.setFixedSize(245, 60)
-
-        self.admin_btn.setFixedSize(245, 60)
-
 
 
 
@@ -107,8 +103,8 @@ class UserLogin(QWidget):
             self.title_right = QLabel("Najot Pharmacy")
             self.login_input = Edit("Enter a your login...")
             self.password_input = Edit("Enter a your password...")
-            self.user_btn = Bottom("Login as a user")
-            self.admin_btn = Bottom("Login as a admin")
+            self.user_btn = Botton("Login as a user")
+            self.admin_btn = Botton("Login as a admin")
 
             self.box_btn.addWidget(self.user_btn)
             self.box_btn.addWidget(self.admin_btn)

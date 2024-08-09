@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import(
 )
 from PyQt5.QtCore import Qt
 
-class Bottom(QPushButton):
+class Botton(QPushButton):
         def __init__(self, text:str = "") -> None:
             super().__init__(text)
             self.setFixedSize(200, 50)
