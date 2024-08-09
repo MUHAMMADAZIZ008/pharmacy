@@ -7,7 +7,7 @@ CREATE TABLE Medicine_items(
     name VARCHAR(64) UNIQUE,
     produced_time DATE,
     end_time DATE,
-    expiration_date float,
+    expiration_date INT,
     price INT,
     count INT
 );

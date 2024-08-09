@@ -67,6 +67,8 @@ class UserLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("logo.png"))
+        self.core  = Database()
+
         self.UIinit()
         self.show()
     
@@ -115,17 +117,9 @@ class UserLogin(QWidget):
         """)
     
     def Enter_user_page(self):
-        self.close()
-        # username = self.login_input.text()
-        # password = self.password_input.text()
-        # if not (username and password):
-        #     self.info_label.setText("Empty username or password")
-        #     return
-        # user = {
-        #     'login' : username,
-        #     'password' : password
-        # }
-        self.admin_page = Medicine_buy()
+        items = self.core.Get_all_medicine_items() # items listda keladi
+        self.close()   
+        self.Med_buy_page = Medicine_buy(items)
 
     def user_register(self):
         self.close()
@@ -267,14 +261,76 @@ class RegistrationPage(QWidget):
             self.info_label.setText("Incorrect login or password")
         
 class Medicine_buy(QWidget):
-        def __init__(self) -> None:
-            super().__init__()
-            self.showMaximized()
-            self.setWindowTitle("Najot Pharmacy")
-            self.setWindowIcon(QIcon("login_icon.png"))
-            # self.UIinit()
-            self.show()
+    def __init__(self, items: list) -> None:
+        self.medicine_items = items
+        print(self.medicine_items)
+        super().__init__()
+        self.showMaximized()
+        self.setWindowTitle("Najot Pharmacy")
+        self.setWindowIcon(QIcon("login_icon.png"))
+        self.show()
 
+        self.initUI()
+
+    def initUI(self):
+
+        self.vbox = QVBoxLayout()
+
+        self.hbox = QHBoxLayout()
+        self.hbox2 = QHBoxLayout()
+
+        self.line_edit = QLineEdit(self)
+        self.line_edit.setPlaceholderText("Id")
+        self.line_edit.setFixedWidth(130)
+        self.hbox.addWidget(self.line_edit)
+
+        self.update_button = QPushButton("Updete User", self)
+        self.update_button.setFixedWidth(130)
+        self.delete_button = QPushButton("Delete User", self)
+        self.delete_button.setFixedWidth(130)  
+        self.exit = QPushButton("Exit", self)
+        self.exit.setFixedWidth(130)
+
+        self.users_infos = QTableView(self)
+        
+        self.model = QStandardItemModel()
+        self.model.setHorizontalHeaderLabels(["Product", "Produced time", "End time", "Muddati", "Narxi"])
+
+        self.add_data_to_model(self.medicine_items)
+
+        self.users_infos.setModel(self.model)
+
+        self.users_infos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.hbox2.addWidget(self.users_infos)
+
+        self.hbox.addStretch()
+        self.hbox.addWidget(self.update_button)
+        self.hbox.addWidget(self.delete_button)
+        self.hbox.addWidget(self.exit)
+
+        self.vbox.addLayout(self.hbox)
+        self.vbox.addLayout(self.hbox2)
+        self.setLayout(self.vbox)
+
+        self.users_infos.clicked.connect(self.on_cell_clicked)
+        
+
+    def on_cell_clicked(self, index):
+        if index.column() == 0: 
+            data = self.model.itemFromIndex(index).text()
+            self.line_edit.setText(data)
+
+    def add_data_to_model(self, data):
+        if self.model.rowCount() == 0:
+            for row in data:
+                items = [QStandardItem(str(field)) for field in row]
+                self.model.appendRow(items[1:-1])
+        else:
+            self.model.removeRows(0, self.model.rowCount())
+            self.line_edit.clear()
+            for row in data:
+                items = [QStandardItem(str(field)) for field in row]
+                self.model.appendRow(items[1:-1])
 
 app = QApplication([])
 login_page = mainPage()
