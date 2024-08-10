@@ -121,8 +121,11 @@ class UserLogin(QWidget):
 
     
     def Enter_user_page(self):
+
         items = self.core.Get_all_medicine_items()
+
         self.close()
+
         self.admin_page = Medicine_buy(items)
 
     def user_register(self):
@@ -284,7 +287,28 @@ class Medicine_buy(QWidget):
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
-        self.show()
+
+        self.setStyleSheet("""
+            QHBoxLayout{
+                background: yellow;
+                    }
+            QLineEdit{
+                background: #F5F5F5;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+        
+                    }
+                    
+            QPushButton{
+                background-color: #4B0082;
+                color: white;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+                           }""")
 
         self.initUI()
 
@@ -296,16 +320,17 @@ class Medicine_buy(QWidget):
         self.hbox2 = QHBoxLayout()
 
         self.line_edit = QLineEdit(self)
-        self.line_edit.setPlaceholderText("Id")
-        self.line_edit.setFixedWidth(130)
+        self.line_edit.setPlaceholderText("Search")
+        self.line_edit.setFixedSize(400, 50)
+        self.hbox.addStretch(10)
         self.hbox.addWidget(self.line_edit)
+        self.hbox.addStretch(10)
 
-        self.update_button = QPushButton("Updete User", self)
-        self.update_button.setFixedWidth(130)
-        self.delete_button = QPushButton("Delete User", self)
-        self.delete_button.setFixedWidth(130)  
+        self.card_btn = QPushButton("Card 🧺", self)
+        self.card_btn.setFixedSize(150, 50)
         self.exit = QPushButton("Exit", self)
-        self.exit.setFixedWidth(130)
+        self.exit.setFixedSize(150, 50)
+
 
         self.users_infos = QTableView(self)
         
@@ -320,8 +345,7 @@ class Medicine_buy(QWidget):
         self.hbox2.addWidget(self.users_infos)
 
         self.hbox.addStretch()
-        self.hbox.addWidget(self.update_button)
-        self.hbox.addWidget(self.delete_button)
+        self.hbox.addWidget(self.card_btn)
         self.hbox.addWidget(self.exit)
 
         self.vbox.addLayout(self.hbox)
@@ -330,6 +354,7 @@ class Medicine_buy(QWidget):
 
         self.users_infos.clicked.connect(self.on_cell_clicked)
         
+        self.show()
 
     def on_cell_clicked(self, index):
         if index.column() == 0: 
