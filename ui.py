@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import(
     QLabel,
     QTableView,
     QHeaderView,
+    QMessageBox
 )
 from PyQt5.QtGui import (
     QIcon, 
@@ -157,14 +158,14 @@ class AdminLogin(QWidget):
         self.main_box = QHBoxLayout()
         self.right_box = QVBoxLayout()
             
-        self.title_right = QLabel("Najot Pharmacy")
+        self.title_right = QLabel("Login to the admin page")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
         self.info_lable = QLabel()
         self.enter_btn = Button("Enter")
         self.enter_btn.clicked.connect(self.enter_admin_page)
         self.back_btn = Button("🔙")
-        # self.back_btn.clicked.connect(self.beck_main)
+        self.back_btn.clicked.connect(self.beck_main)
 
 
 
@@ -207,6 +208,7 @@ class AdminLogin(QWidget):
 
 
     def enter_admin_page(self):
+        items = self.core.Get_all_medicine_items()
         login = self.login_input.text()
         password = self.password_input.text()
         users = {
@@ -215,15 +217,19 @@ class AdminLogin(QWidget):
         }
         _id = self.core.get_admin_data(users)
         self.info_lable.clear()
-        if not (login and password):
-            self.info_lable.setText("Empty login or password!!!")
-            return
-        print(_id)
-        if not _id:
-            self.info_lable.setText("Login or password is error!!!")
-            return
+        # if not (login and password):
+        #     self.info_lable.setText("Empty login or password!!!")
+        #     return
+        # print(_id)
+        # if not _id:
+        #     self.info_lable.setText("Login or password is error!!!")
+        #     return
         self.close()
-        self.open_admin_page = AdminPage(_id)     
+        self.open_admin_page = AdminPage(items)     
+
+    def beck_main(self):
+        self.close()
+        self.open_main_page = mainPage()
 
 class RegistrationPage(QWidget):
     def __init__(self):
@@ -463,10 +469,165 @@ class Medicine_buy(QWidget):
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items[1:-1])
 
+
+
 class AdminPage(QWidget):
-    def __init__(self, _id) -> None:
+    def __init__(self, items: list) -> None:
         super().__init__()
+        self.medicine_items = items
+        print(self.medicine_items)
+        self.showMaximized()
+        self.setWindowTitle("Admin Page")
+        self.setWindowIcon(QIcon("login_icon.png"))
+
+        self.setStyleSheet("""
+            QHBoxLayout{
+                background: yellow;
+            }
+            QLineEdit{
+                background: #F5F5F5;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+            }
+            QPushButton{
+                background-color: #4B0082;
+                color: white;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+            }
+            QTableView {
+                border: 1px solid #4B0082;
+                alternate-background-color: #F0F0F0;
+                gridline-color: #4B0082;
+            }
+            QHeaderView::section {
+                background-color: #4B0082;
+                color: white;
+                font-size: 15px;
+                padding: 5px;
+                border: 1px solid #4B0082;
+            }
+            QTableView::item {
+                padding: 5px;
+            }""")
+
+        self.initUI()
+
+    def initUI(self):
+        self.vbox = QVBoxLayout()
+        self.hbox = QHBoxLayout()
+        self.hbox2 = QHBoxLayout()
+        self.main_box = QHBoxLayout()
+        self.left_box = QVBoxLayout()
+
+        self.line_edit = QLineEdit(self)
+        self.line_edit.setPlaceholderText("🔍 Search")
+        self.line_edit.setFixedSize(400, 50)
+        self.hbox.addStretch(10)
+        self.hbox.addWidget(self.line_edit)
+        self.hbox.addStretch(10)
+
+        self.exit = Button("Exit")
+        self.exit.clicked.connect(self.exit_sys)
+        self.exit.setFixedSize(150, 50)
+
+        self.madicine_table = QTableView(self)
+
+        self.model = QStandardItemModel()
+        self.model.setHorizontalHeaderLabels(["Product", "Produced time", "End time", "Muddati", "Narxi", "Count"])
+
+        self.add_data_to_model(self.medicine_items)
+
+        self.madicine_table.setModel(self.model)
+
+        self.madicine_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        delegate = ColorfulDelegate(self)
+        self.madicine_table.setItemDelegate(delegate)
+
+        #left
+        self.update_product = Button("Update")
+        self.update_product.clicked.connect(self.update_poduct_database)
+
+        self.delete_product = Button("Delete")
+        self.expired_product = Button("Expired")
+        self.left_box.addWidget(self.update_product)
+        self.left_box.addWidget(self.delete_product)
+        self.left_box.addWidget(self.expired_product)
+
+        self.hbox2.addWidget(self.madicine_table, stretch=5)
+        self.hbox2.addLayout(self.left_box, stretch=1)
+        self.hbox.addStretch()
+        self.hbox.addWidget(self.exit)
+
+        self.vbox.addLayout(self.hbox)
+        self.vbox.addLayout(self.hbox2)
+        self.setLayout(self.vbox)
+
+        self.line_edit.textChanged.connect(self.search_items)
+        self.madicine_table.clicked.connect(self.on_cell_clicked)
         self.show()
+        
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(255, 255, 200))
+
+
+
+    def search_items(self):
+        search_term = self.line_edit.text().lower()
+        for row in range(self.model.rowCount()):
+            item = self.model.item(row, 0)
+            if search_term in item.text().lower():
+                self.madicine_table.setRowHidden(row, False)
+            else:
+                self.madicine_table.setRowHidden(row, True)
+
+    def on_cell_clicked(self, index):
+        if index.column() == 0:
+            data = self.model.itemFromIndex(index).text()
+            self.line_edit.setText(data)
+
+    def add_data_to_model(self, data):
+        if self.model.rowCount() == 0:
+            for row in data:
+                items = [QStandardItem(str(field)) for field in row]
+                self.model.appendRow(items[1:])
+        else:
+            self.model.removeRows(0, self.model.rowCount())
+            self.line_edit.clear()
+            for row in data:
+                items = [QStandardItem(str(field)) for field in row]
+                self.model.appendRow(items[1:])
+    
+    def update_poduct_database(self):
+        for row in range(self.model.rowCount()):
+            product_dic = {}
+            product = self.model.item(row, 0).text()
+            produced_time = self.model.item(row, 1).text()
+            end_time = self.model.item(row, 2).text()
+            muddati = self.model.item(row, 3).text()
+            narxi = self.model.item(row, 4).text()
+            product_dic = {
+                "name": product,
+                "produced_time" : produced_time,
+                "end_time" : end_time,
+                "expiration_date" : muddati,
+                "price" : narxi
+            }
+            self.core.update_tabele(product_dic)
+
+
+        QMessageBox.information(self, "Success", "Data updated in the database successfully.")
+
+
+    def exit_sys(self):
+        self.close()
+
 
 app = QApplication([])
 login_page = mainPage()
