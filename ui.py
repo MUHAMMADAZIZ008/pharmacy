@@ -8,7 +8,8 @@ from PyQt5.QtWidgets import(
     QLabel,
     QTableView,
     QHeaderView,
-    QMessageBox
+    QMessageBox,
+    QTableWidgetItem
 )
 from PyQt5.QtGui import (
     QIcon, 
@@ -349,6 +350,7 @@ class Medicine_buy(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
         self.medicine_items = items
+        print(self.medicine_items)
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -392,20 +394,35 @@ class Medicine_buy(QWidget):
 
     def initUI(self):
         self.vbox = QVBoxLayout()
-        self.hbox = QHBoxLayout()
+        self.navbar_box = QHBoxLayout()
         self.hbox2 = QHBoxLayout()
 
-        self.line_edit = QLineEdit()
-        self.line_edit.setPlaceholderText("Search")
-        self.line_edit.setFixedSize(400, 50)
-        self.hbox.addStretch(10)
-        self.hbox.addWidget(self.line_edit)
-        self.hbox.addStretch(10)
+        self.search_edit = QLineEdit()
+        self.search_edit.setPlaceholderText("Search")
+        self.search_edit.setFixedSize(400, 50)
+        self.navbar_box.addStretch(20)
+        self.navbar_box.addWidget(self.search_edit)
+        self.navbar_box.addStretch(1)
+
+        self.amount = QLineEdit()
+        self.amount.setPlaceholderText("1")
+        self.amount.setFixedSize(100, 50)
+        self.navbar_box.addWidget(self.amount)
+
+        self.add_btn = QPushButton("Add")
+        self.add_btn.setFixedSize(100, 50)
+        self.navbar_box.addWidget(self.add_btn)
+        self.navbar_box.addStretch(10)
+
+
 
         self.card_btn = QPushButton("Korzinka 🧺")
         self.card_btn.setFixedSize(150, 50)
+        self.navbar_box.addWidget(self.card_btn)
+
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
+        self.navbar_box.addWidget(self.exit)
 
         self.users_infos = QTableView(self)
 
@@ -423,15 +440,13 @@ class Medicine_buy(QWidget):
 
         self.users_infos.setItemDelegate(colorful_delegate)
 
-        self.hbox.addStretch()
-        self.hbox.addWidget(self.card_btn)
-        self.hbox.addWidget(self.exit)
+        self.navbar_box.addStretch()
 
-        self.vbox.addLayout(self.hbox)
+        self.vbox.addLayout(self.navbar_box)
         self.vbox.addLayout(self.hbox2)
         self.setLayout(self.vbox)
 
-        self.line_edit.textChanged.connect(self.search_items)
+        self.search_edit.textChanged.connect(self.search_items)
         self.users_infos.clicked.connect(self.on_cell_clicked)
         self.show()
 
@@ -440,7 +455,7 @@ class Medicine_buy(QWidget):
         painter.fillRect(self.rect(), QColor(255, 255, 200))
 
     def search_items(self):
-        search_term = self.line_edit.text().lower()
+        search_term = self.search_edit.text().lower()
         for row in range(self.model.rowCount()):
             item = self.model.item(row, 0)
             if search_term in item.text().lower():
@@ -455,18 +470,19 @@ class Medicine_buy(QWidget):
     def on_cell_clicked(self, index):
         if index.column() == 0:
             data = self.model.itemFromIndex(index).text()
-            self.line_edit.setText(data)
+            self.search_edit.setText(data)
 
     def add_data_to_model(self, data):
 
         if self.model.rowCount() == 0:
-            for row in data:
+            for i, row in enumerate(data):
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items[1:-1])
+
         else:
             self.model.removeRows(0, self.model.rowCount())
-            self.line_edit.clear()
-            for row in data:
+            self.search_edit.clear()
+            for i, row in enumerate(data):
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items[1:-1])
 
