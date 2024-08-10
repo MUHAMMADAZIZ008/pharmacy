@@ -7,7 +7,7 @@ class Database:
         self.connection = mysql.connector.connect(
             host = 'localhost',
             user = 'root',
-            password = 'mr2344',
+            password = 'Mm08gulomov',
             database = 'pharmacy'
         )
 
@@ -102,25 +102,25 @@ class Database:
     def update_medicine(self, item: dict):
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute("""
-                UPDATE Medicine_items
-                SET name = %s, produced_time = %s, end_time = %s, expiration_date, = %s, price = %s, count = %s
-                WHERE id = %s;
-                """,
-                (item['id'], item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'], item['count'] ))
+                cursor.execute(f"""
+                    UPDATE medicine_items
+                    SET name = "{item['name']}", produced_time = "{item['produced_time']}", end_time = "{item['end_time']}", expiration_date = "{item['expiration_date']}", price = "{item['price']}", count = "{item['count']}"
+                    WHERE id = "{item["id"]}";
+                """)
+                # (item['id'], item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'], item['count'] ))
             
             self.connection.commit()
-            return None
+            return True
         except Error as err:
-
             self.connection.rollback()
             return str(err)
-        
+
+
     def update_tabele(self, item: dict):
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute("""
-                UPDATE Medicine_items
+                UPDATE medicine_items
                 SET name = %s, produced_time = %s, end_time = %s, expiration_date, = %s, price = %s
                 """,
                 ( item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'] ))

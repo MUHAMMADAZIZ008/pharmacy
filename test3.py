@@ -7,7 +7,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QMessageBox,
     QHBoxLayout,
-    QLineEdit
+    QLineEdit,
+    QHeaderView
 )
 
 from PyQt5.QtGui import   QStandardItemModel, QStandardItem

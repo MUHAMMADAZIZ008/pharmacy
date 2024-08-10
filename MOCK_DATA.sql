@@ -37,3 +37,8 @@ CREATE TABLE Users_data(
 
 
 SELECT * FROM Medicine_items;
+
+
+UPDATE medicine_items
+SET name = "amptisilin", produced_time = "2024-07-08", end_time = "2029-07-08", expiration_date = 5, price = 400, count = 7000
+WHERE id = 1;
