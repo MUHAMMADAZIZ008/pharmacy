@@ -121,21 +121,9 @@ class UserLogin(QWidget):
 
     
     def Enter_user_page(self):
-        username = self.login_input.text()
-        password = self.password_input.text()
-
-        # user = self.core.get_user_data()
-        
-        if not (username and password):
-            self.info_label.setText("Empty username or password!!!")
-            return
-        self.info_label.clear()
-        user = {
-            'login' : username,
-            'password' : password
-        }
+        items = self.core.Get_all_medicine_items()
         self.close()
-        self.admin_page = Medicine_buy()
+        self.admin_page = Medicine_buy(items)
 
     def user_register(self):
         self.close()
