@@ -20,8 +20,8 @@ from PyQt5.QtGui import (
     QIcon
     )
 
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtCore import Qt, QEvent
+from Line_Edit import PhoneLineEdit
 from core import *
 
 from classes import *
@@ -241,7 +241,7 @@ class RegistrationPage(QWidget):
         self.title = QLabel("Registration")
         self.username_input = Edit("Username")
         self.password_input = Edit("Password")
-        self.phone_number_input = Edit()
+        self.phone_number_input = PhoneLineEdit("+998")
         self.warning_user = QLabel()
         self.warning_number = QLabel()
         self.password_input.setEchoMode(QLineEdit.Password)
@@ -277,7 +277,7 @@ class RegistrationPage(QWidget):
         self.password_input.setFixedSize(450, 50)
         self.phone_number_input.setFixedSize(450, 50)
         # self.phone_number_input.setText("+998 ")
-        self.phone_number_input.setPlaceholderText("+998-90-123-45-67")
+        # self.phone_number_input.setPlaceholderText("+998-90-123-45-67")
 
         self.title.setStyleSheet("""
             font-size: 60px;
@@ -299,6 +299,7 @@ class RegistrationPage(QWidget):
         username = self.username_input.text()
         password = self.password_input.text()
         phone_number = self.phone_number_input.text()
+        print(phone_number)
         self.info_label.clear()
         if not (username and password):
             self.info_label.setText("Empty login or password!!!")
@@ -306,7 +307,7 @@ class RegistrationPage(QWidget):
         if not phone_number:
             self.warning_number.setText("Empty phone number!!!")
             return
-        if not (phone_number[1:].isdigit() and phone_number[0] == "+" and len(phone_number) == 12):
+        if not (phone_number[1:].isdigit() and phone_number[0] == "+" and len(phone_number) == 13):
             self.warning_number.setText("Enter the number correctly!!!")
             return
 
@@ -318,6 +319,7 @@ class RegistrationPage(QWidget):
         err = self.core.insert_user(user)
         if err:
             self.info_label.setText("Incorrect login or password")
+
 
 class ColorfulDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -335,13 +337,12 @@ class ColorfulDelegate(QStyledItemDelegate):
             painter.fillRect(option.rect, QBrush(QColor("green")))
         
         super().paint(painter, option, index)
-        
+
 
 class Medicine_buy(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
         self.medicine_items = items
-        print(self.medicine_items)
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -388,16 +389,16 @@ class Medicine_buy(QWidget):
         self.hbox = QHBoxLayout()
         self.hbox2 = QHBoxLayout()
 
-        self.line_edit = QLineEdit(self)
-        self.line_edit.setPlaceholderText("🔍 Search")
+        self.line_edit = QLineEdit()
+        self.line_edit.setPlaceholderText("Search")
         self.line_edit.setFixedSize(400, 50)
         self.hbox.addStretch(10)
         self.hbox.addWidget(self.line_edit)
         self.hbox.addStretch(10)
 
-        self.card_btn = Button("Card 🧺")
+        self.card_btn = QPushButton("Korzinka 🧺")
         self.card_btn.setFixedSize(150, 50)
-        self.exit = Button("Exit")
+        self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
 
         self.users_infos = QTableView(self)
@@ -412,8 +413,9 @@ class Medicine_buy(QWidget):
         self.users_infos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.hbox2.addWidget(self.users_infos)
 
-        delegate = ColorfulDelegate(self)
-        self.users_infos.setItemDelegate(delegate)
+        colorful_delegate = ColorfulDelegate(self)
+
+        self.users_infos.setItemDelegate(colorful_delegate)
 
         self.hbox.addStretch()
         self.hbox.addWidget(self.card_btn)
@@ -426,12 +428,10 @@ class Medicine_buy(QWidget):
         self.line_edit.textChanged.connect(self.search_items)
         self.users_infos.clicked.connect(self.on_cell_clicked)
         self.show()
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(255, 255, 200))  # Faqat oq fonda chizish
-
-
+        painter.fillRect(self.rect(), QColor(255, 255, 200))
 
     def search_items(self):
         search_term = self.line_edit.text().lower()
@@ -452,6 +452,7 @@ class Medicine_buy(QWidget):
             self.line_edit.setText(data)
 
     def add_data_to_model(self, data):
+
         if self.model.rowCount() == 0:
             for row in data:
                 items = [QStandardItem(str(field)) for field in row]
