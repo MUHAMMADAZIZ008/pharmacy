@@ -4,12 +4,22 @@ from PyQt5.QtWidgets import(
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QLayout,
+    QStyledItemDelegate,
     QLabel,
     QTableView,
     QHeaderView,
 )
-from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel, QPainter
+from PyQt5.QtGui import (
+    QIcon, 
+    QPixmap, 
+    QStandardItem, 
+    QStandardItemModel, 
+    QPainter, 
+    QColor, 
+    QBrush, 
+    QIcon
+    )
+
 from PyQt5.QtCore import Qt
 
 from core import *
@@ -55,6 +65,7 @@ class mainPage(QWidget):
     def enter_admin_page(self):
         self.open_admin_page = AdminLogin()
         self.close()
+        
     def paintEvent(self, event):
         painter = QPainter(self)
         pixmap = QPixmap("main_bg2.jpg") 
@@ -278,12 +289,30 @@ class RegistrationPage(QWidget):
         err = self.core.insert_user(user)
         if err:
             self.info_label.setText("Incorrect login or password")
+
+class ColorfulDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def paint(self, painter, option, index):
+        if not painter:
+            return
+
+        if index.column() == 0: 
+            painter.fillRect(option.rect, QBrush(QColor("#E0FFFF")))
+        elif index.column() == 1:
+            painter.fillRect(option.rect, QBrush(QColor("#FFFFE0")))
+        elif index.column() == 2:
+            painter.fillRect(option.rect, QBrush(QColor("green")))
         
+        super().paint(painter, option, index)
+        
+
 class Medicine_buy(QWidget):
     def __init__(self, items: list) -> None:
+        super().__init__()
         self.medicine_items = items
         print(self.medicine_items)
-        super().__init__()
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -291,16 +320,14 @@ class Medicine_buy(QWidget):
         self.setStyleSheet("""
             QHBoxLayout{
                 background: yellow;
-                    }
+            }
             QLineEdit{
                 background: #F5F5F5;
                 font-size: 25px;
                 border-radius: 10px;
                 padding: 5px;
                 padding-left: 10px
-        
-                    }
-                    
+            }
             QPushButton{
                 background-color: #4B0082;
                 color: white;
@@ -308,19 +335,32 @@ class Medicine_buy(QWidget):
                 border-radius: 10px;
                 padding: 5px;
                 padding-left: 10px
-                           }""")
+            }
+            QTableView {
+                border: 1px solid #4B0082;
+                alternate-background-color: #F0F0F0;
+                gridline-color: #4B0082;
+            }
+            QHeaderView::section {
+                background-color: #4B0082;
+                color: white;
+                font-size: 15px;
+                padding: 5px;
+                border: 1px solid #4B0082;
+            }
+            QTableView::item {
+                padding: 5px;
+            }""")
 
         self.initUI()
 
     def initUI(self):
-
         self.vbox = QVBoxLayout()
-
         self.hbox = QHBoxLayout()
         self.hbox2 = QHBoxLayout()
 
         self.line_edit = QLineEdit(self)
-        self.line_edit.setPlaceholderText("Search")
+        self.line_edit.setPlaceholderText("🔍 Search")
         self.line_edit.setFixedSize(400, 50)
         self.hbox.addStretch(10)
         self.hbox.addWidget(self.line_edit)
@@ -331,9 +371,8 @@ class Medicine_buy(QWidget):
         self.exit = QPushButton("Exit", self)
         self.exit.setFixedSize(150, 50)
 
-
         self.users_infos = QTableView(self)
-        
+
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(["Product", "Produced time", "End time", "Muddati", "Narxi"])
 
@@ -344,6 +383,9 @@ class Medicine_buy(QWidget):
         self.users_infos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.hbox2.addWidget(self.users_infos)
 
+        delegate = ColorfulDelegate(self)
+        self.users_infos.setItemDelegate(delegate)
+
         self.hbox.addStretch()
         self.hbox.addWidget(self.card_btn)
         self.hbox.addWidget(self.exit)
@@ -352,12 +394,27 @@ class Medicine_buy(QWidget):
         self.vbox.addLayout(self.hbox2)
         self.setLayout(self.vbox)
 
+        self.line_edit.textChanged.connect(self.search_items)
         self.users_infos.clicked.connect(self.on_cell_clicked)
-        
         self.show()
+        
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(255, 255, 200))  # Faqat oq fonda chizish
+
+
+
+    def search_items(self):
+        search_term = self.line_edit.text().lower()
+        for row in range(self.model.rowCount()):
+            item = self.model.item(row, 0)
+            if search_term in item.text().lower():
+                self.users_infos.setRowHidden(row, False)
+            else:
+                self.users_infos.setRowHidden(row, True)
 
     def on_cell_clicked(self, index):
-        if index.column() == 0: 
+        if index.column() == 0:
             data = self.model.itemFromIndex(index).text()
             self.line_edit.setText(data)
 

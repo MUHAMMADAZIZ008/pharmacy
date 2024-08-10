@@ -1,89 +1,58 @@
-from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QLineEdit, QVBoxLayout, QWidget
 
-class Window(QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # setting title
-        self.setWindowTitle("Python ")
+        self.setWindowTitle('Dori Qidirish')
+        self.setGeometry(100, 100, 600, 400)
 
-        # setting geometry
-        self.setGeometry(100, 100, 500, 400)
+        # Create a widget for the central area
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
 
-        # calling method
-        self.UiComponents()
+        # Create a QVBoxLayout for the central widget
+        layout = QVBoxLayout()
+        central_widget.setLayout(layout)
 
-        # showing all the widgets
-        self.show()
+        # Create a QLineEdit for search input
+        self.search_box = QLineEdit()
+        self.search_box.setPlaceholderText('Dori nomini kiriting...')
+        layout.addWidget(self.search_box)
 
+        # Create a QTableWidget to display the drugs
+        self.table_widget = QTableWidget()
+        self.table_widget.setColumnCount(1)  # Assume one column for drug names
+        self.table_widget.setHorizontalHeaderLabels(['Dori nomi'])
+        layout.addWidget(self.table_widget)
 
-# method for components
-    def UiComponents(self):
+        # Example drug data
+        self.drugs = [
+            'Paracetamol', "Paracetamol", 'Paragina', 'Aspirin', 'Amoxicillin', 'Cough Syrup', 'Vitamin C'
+        ]
 
-        # creating a QColorDialog object
-        dialog = QColorDialog(self)
+        # Populate the table with the example drug data
+        self.populate_table(self.drugs)
 
-        # setting custom colors
-        dialog.setCustomColor(1, Qt.red)
-        dialog.setCustomColor(2, Qt.green)
-        dialog.setCustomColor(3, Qt.yellow)
-        dialog.setCustomColor(4, Qt.blue)
+        # Connect the textChanged signal to the search method
+        self.search_box.textChanged.connect(self.search_drugs)
 
-        # creating label
-        label = QLabel("Geeks for Geeks", self)
+    def populate_table(self, drugs):
+        self.table_widget.setRowCount(len(drugs))
+        for row, drug in enumerate(drugs):
+            self.table_widget.setItem(row, 0, QTableWidgetItem(drug))
 
-        label.setAlignment(Qt.AlignCenter)
+    def search_drugs(self):
+        search_term = self.search_box.text().lower()
+        for row in range(self.table_widget.rowCount()):
+            item = self.table_widget.item(row, 0)
+            if search_term in item.text().lower():
+                self.table_widget.setRowHidden(row, False)
+            else:
+                self.table_widget.setRowHidden(row, True)
 
-        # making label multi line
-        label.setWordWrap(True)
-
-        # setting stylesheet of the label
-        label.setStyleSheet("QLabel"
-                        "{"
-                        "border : 5px solid black;"
-                        "}")
-
-
-        # getting the custom color
-        color = dialog.customColor(4)
-
-        # setting graphic effect to the label
-        graphic = QGraphicsColorizeEffect(self)
-
-        # setting color to the graphic
-        graphic.setColor(color)
-
-        # setting graphic to the label
-        label.setGraphicsEffect(graphic)
-
-# adding label to the color dialog
-        layout = dialog.layout()
-        layout.addWidget(label)
-        dialog.setLayout(layout)
-
-        # setting style sheet to the color dialog
-        # adding background color
-        dialog.setStyleSheet("background-color : lightgreen;")
-
-        print(dialog.children())
-
-        # executing the color dialog
-        dialog.exec_()
-
-        # deleting the main window
-        self.deleteLater()
-
-
-
-        #create pyqt5 app
-App = QApplication(sys.argv)
-
-        # create the instance of our Window
-window = Window()
-
-# start the app
-sys.exit(App.exec())
+if __name__ == '__main__':
+    app = QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec_()
