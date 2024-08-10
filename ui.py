@@ -337,12 +337,21 @@ class ColorfulDelegate(QStyledItemDelegate):
             return
 
         if index.column() == 0: 
-            painter.fillRect(option.rect, QBrush(QColor("#E0FFFF")))
+            painter.fillRect(option.rect, QBrush(QColor("#416692")))
         elif index.column() == 1:
-            painter.fillRect(option.rect, QBrush(QColor("#FFFFE0")))
+            painter.fillRect(option.rect, QBrush(QColor("#9AC8CD")))
         elif index.column() == 2:
-            painter.fillRect(option.rect, QBrush(QColor("green")))
-        
+            painter.fillRect(option.rect, QBrush(QColor("#03346E")))
+        elif index.column() == 3:
+            painter.fillRect(option.rect, QBrush(QColor("#0E46A3")))
+        elif index.column() == 4:
+            painter.fillRect(option.rect, QBrush(QColor("#433D8B")))
+        elif index.column() == 5:
+            painter.fillRect(option.rect, QBrush(QColor("#35374B")))
+        elif index.column() == 6:
+            painter.fillRect(option.rect, QBrush(QColor("#176B87")))
+        elif index.column() == 7:
+            painter.fillRect(option.rect, QBrush(QColor("#64CCC5")))
         super().paint(painter, option, index)
 
 
@@ -519,30 +528,36 @@ class AdminPage(QWidget):
             QTableView {
                 border: 1px solid #4B0082;
                 alternate-background-color: #F0F0F0;
+                background-color: #11182d;
                 gridline-color: #4B0082;
+                color: #fff;
+                font-size: 25px;
             }
             QHeaderView::section {
-                background-color: #4B0082;
+                background-color: #221142;
                 color: white;
-                font-size: 15px;
+                font-size: 25px;
                 padding: 5px;
                 border: 1px solid #4B0082;
             }
             QTableView::item {
                 padding: 5px;
+                color: #00;
+                font-size: 25px;
+                font-family: sans-serif;
             }""")
 
         self.initUI()
 
     def initUI(self):
+        self.core = Database()
         self.vbox = QVBoxLayout()
         self.hbox = QHBoxLayout()
-        self.hbox2 = QHBoxLayout()
-        self.main_box = QHBoxLayout()
-        self.left_box = QVBoxLayout()
+        self.hbox2 = QVBoxLayout()
+        self.left_box = QHBoxLayout()
 
         self.line_edit = QLineEdit(self)
-        self.line_edit.setPlaceholderText("🔍 Search")
+        self.line_edit.setPlaceholderText("Search")
         self.line_edit.setFixedSize(400, 50)
         self.hbox.addStretch(10)
         self.hbox.addWidget(self.line_edit)
@@ -555,7 +570,7 @@ class AdminPage(QWidget):
         self.madicine_table = QTableView(self)
 
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels(["Product", "Produced time", "End time", "Muddati", "Narxi", "Count"])
+        self.model.setHorizontalHeaderLabels(["Id", "Product", "Produced time", "End time", "Term", "Price", "Count"])
 
         self.add_data_to_model(self.medicine_items)
 
@@ -576,8 +591,8 @@ class AdminPage(QWidget):
         self.left_box.addWidget(self.delete_product)
         self.left_box.addWidget(self.expired_product)
 
-        self.hbox2.addWidget(self.madicine_table, stretch=5)
-        self.hbox2.addLayout(self.left_box, stretch=1)
+        self.hbox2.addWidget(self.madicine_table)
+        self.hbox2.addLayout(self.left_box)
         self.hbox.addStretch()
         self.hbox.addWidget(self.exit)
 
@@ -591,14 +606,14 @@ class AdminPage(QWidget):
         
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor(255, 255, 200))
+        painter.fillRect(self.rect(), QColor(10, 15, 31))
 
 
 
     def search_items(self):
         search_term = self.line_edit.text().lower()
         for row in range(self.model.rowCount()):
-            item = self.model.item(row, 0)
+            item = self.model.item(row, 1)
             if search_term in item.text().lower():
                 self.madicine_table.setRowHidden(row, False)
             else:
@@ -613,34 +628,41 @@ class AdminPage(QWidget):
         if self.model.rowCount() == 0:
             for row in data:
                 items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:])
+                self.model.appendRow(items)
         else:
             self.model.removeRows(0, self.model.rowCount())
             self.line_edit.clear()
             for row in data:
                 items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:])
+                self.model.appendRow(items)
     
     def update_poduct_database(self):
+        is_true = False
         for row in range(self.model.rowCount()):
             product_dic = {}
-            product = self.model.item(row, 0).text()
-            produced_time = self.model.item(row, 1).text()
-            end_time = self.model.item(row, 2).text()
-            muddati = self.model.item(row, 3).text()
-            narxi = self.model.item(row, 4).text()
+            _id = self.model.item(row, 0).text()
+            product = self.model.item(row, 1).text()
+            produced_time = self.model.item(row, 2).text()
+            end_time = self.model.item(row, 3).text()
+            muddati = self.model.item(row, 4).text()
+            narxi = self.model.item(row, 5).text()
+            soni = self.model.item(row, 6).text()
             product_dic = {
+                "id" : int(_id),
                 "name": product,
                 "produced_time" : produced_time,
                 "end_time" : end_time,
-                "expiration_date" : muddati,
-                "price" : narxi
+                "expiration_date" : int(muddati),
+                "price" : int(narxi),
+                "count" : int(soni)
             }
-            self.core.update_tabele(product_dic)
-
-
-        QMessageBox.information(self, "Success", "Data updated in the database successfully.")
-
+            print(product_dic)
+            is_true = self.core.update_medicine(product_dic)
+        print(is_true)
+        if is_true:
+            QMessageBox.information(self, "Success", "Data updated in the database successfully.")
+        else:
+            QMessageBox.information(self, "Success", "There is an input error.")
 
     def exit_sys(self):
         self.close()
