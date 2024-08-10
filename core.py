@@ -115,3 +115,19 @@ class Database:
 
             self.connection.rollback()
             return str(err)
+        
+    def update_tabele(self, item: dict):
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute("""
+                UPDATE Medicine_items
+                SET name = %s, produced_time = %s, end_time = %s, expiration_date, = %s, price = %s
+                """,
+                ( item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'] ))
+            
+            self.connection.commit()
+            return None
+        except Error as err:
+
+            self.connection.rollback()
+            return str(err)
