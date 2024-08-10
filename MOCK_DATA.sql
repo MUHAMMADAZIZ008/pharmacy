@@ -20,7 +20,7 @@ INSERT INTO Medicine_items(name, produced_time, end_time, expiration_date, price
 CREATE TABLE Admins_data (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(32) UNIQUE,
-    password VARCHAR(32), 
+    password VARCHAR(32)
 );
 
 INSERT INTO Admins_data (username, password) VALUES

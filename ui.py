@@ -138,6 +138,7 @@ class AdminLogin(QWidget):
         self.showMaximized()
         self.setWindowTitle("Login Page")
         self.setWindowIcon(QIcon("login_icon.png"))
+        self.core = Database()
         self.UIinit()
         self.show()
         
@@ -148,11 +149,15 @@ class AdminLogin(QWidget):
         self.title_right = QLabel("Najot Pharmacy")
         self.login_input = Edit("Enter a your login...")
         self.password_input = Edit("Enter a your password...")
+        self.info_lable = QLabel()
         self.enter_btn = Button("Enter")
-        self.registr_btn = Button("Registration")
+        self.enter_btn.clicked.connect(self.enter_admin_page)
+        self.back_btn = Button("🔙")
+        # self.back_btn.clicked.connect(self.beck_main)
 
 
-            #add right
+
+        #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
         self.right_box.addStretch(50)
@@ -160,10 +165,12 @@ class AdminLogin(QWidget):
         self.right_box.addStretch(20)
         self.right_box.addWidget(self.password_input, 0, Qt.AlignCenter)
 
-        self.right_box.addStretch(20)
+        self.right_box.addStretch(10)
+        self.right_box.addWidget(self.info_lable, 0, Qt.AlignCenter)
+        self.right_box.addStretch(10)
         self.right_box.addWidget(self.enter_btn, 0, Qt.AlignCenter)
         self.right_box.addStretch(20)
-        self.right_box.addWidget(self.registr_btn, 0, Qt.AlignCenter)
+        self.right_box.addWidget(self.back_btn, 0, Qt.AlignCenter)
         self.right_box.addStretch(100)
 
         self.main_box.addLayout(self.right_box)
@@ -182,8 +189,30 @@ class AdminLogin(QWidget):
             font-weight: 600;
         """)
         self.enter_btn.setFixedSize(245, 60)
+        self.info_lable.setStyleSheet("""
+            color: red;
+            font-size: 30px;
+        """)
 
-        self.registr_btn.setFixedSize(245, 60)
+
+    def enter_admin_page(self):
+        login = self.login_input.text()
+        password = self.password_input.text()
+        users = {
+            "login" : login,
+            "password" : password
+        }
+        _id = self.core.get_admin_data(users)
+        self.info_lable.clear()
+        if not (login and password):
+            self.info_lable.setText("Empty login or password!!!")
+            return
+        print(_id)
+        if not _id:
+            self.info_lable.setText("Login or password is error!!!")
+            return
+        self.close()
+        self.open_admin_page = AdminPage(_id)     
 
 class RegistrationPage(QWidget):
     def __init__(self):
@@ -308,7 +337,7 @@ class Medicine_buy(QWidget):
                 border-radius: 10px;
                 padding: 5px;
                 padding-left: 10px
-                           }""")
+                }""")
 
         self.initUI()
 
@@ -326,9 +355,9 @@ class Medicine_buy(QWidget):
         self.hbox.addWidget(self.line_edit)
         self.hbox.addStretch(10)
 
-        self.card_btn = QPushButton("Card 🧺", self)
+        self.card_btn = Button("Card 🧺")
         self.card_btn.setFixedSize(150, 50)
-        self.exit = QPushButton("Exit", self)
+        self.exit = Button("Exit")
         self.exit.setFixedSize(150, 50)
 
 
@@ -356,6 +385,10 @@ class Medicine_buy(QWidget):
         
         self.show()
 
+        self.card_btn.setStyleSheet("""
+            background-color: #03C988;
+        """)
+
     def on_cell_clicked(self, index):
         if index.column() == 0: 
             data = self.model.itemFromIndex(index).text()
@@ -372,6 +405,11 @@ class Medicine_buy(QWidget):
             for row in data:
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items[1:-1])
+
+class AdminPage(QWidget):
+    def __init__(self, _id) -> None:
+        super().__init__()
+        self.show()
 
 app = QApplication([])
 login_page = mainPage()
