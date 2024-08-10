@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QTableView,
-    QStyledItemDelegate,
+    QHeaderView,
     QPushButton,
     QMessageBox,
     QHBoxLayout,
