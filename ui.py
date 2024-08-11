@@ -7,8 +7,11 @@ from PyQt5.QtWidgets import(
     QStyledItemDelegate,
     QLabel,
     QTableView,
+    QListWidget,
     QHeaderView,
-    QMessageBox
+    QMessageBox,
+    QAbstractItemView,
+    QListWidgetItem
 )
 from PyQt5.QtGui import (
     QIcon, 
@@ -323,31 +326,92 @@ class RegistrationPage(QWidget):
         self.core.insert_user(user, self.info_label, self.warning_number)
 
 
+# class ColorfulDelegate(QStyledItemDelegate):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+
+#     def paint(self, painter, option, index):
+#         if not painter:
+#             return
+
+#         if index.column() == 0: 
+#             painter.fillRect(option.rect, QBrush(QColor("#416692")))
+#         elif index.column() == 1:
+#             painter.fillRect(option.rect, QBrush(QColor("#9AC8CD")))
+#         elif index.column() == 2:
+#             painter.fillRect(option.rect, QBrush(QColor("#03346E")))
+#         elif index.column() == 3:
+#             painter.fillRect(option.rect, QBrush(QColor("#0E46A3")))
+#         elif index.column() == 4:
+#             painter.fillRect(option.rect, QBrush(QColor("#433D8B")))
+#         elif index.column() == 5:
+#             painter.fillRect(option.rect, QBrush(QColor("#35374B")))
+#         elif index.column() == 6:
+#             painter.fillRect(option.rect, QBrush(QColor("#176B87")))
+#         elif index.column() == 7:
+#             painter.fillRect(option.rect, QBrush(QColor("#64CCC5")))
+#         super().paint(painter, option, index)
+
+
+
 class ColorfulDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, font_size=14, cell_height=30):
         super().__init__(parent)
+        self.font_size = font_size
+        self.cell_height = cell_height
 
     def paint(self, painter, option, index):
         if not painter:
             return
+     
+        column_colors = {
+            0: "#FF8225", 
+            1: "#003366",
+            2: "#006400",
+            3: "#2E8B57",
+            4: "#8B0000",
+        }
 
-        if index.column() == 0: 
-            painter.fillRect(option.rect, QBrush(QColor("#416692")))
-        elif index.column() == 1:
-            painter.fillRect(option.rect, QBrush(QColor("#9AC8CD")))
-        elif index.column() == 2:
-            painter.fillRect(option.rect, QBrush(QColor("#03346E")))
-        elif index.column() == 3:
-            painter.fillRect(option.rect, QBrush(QColor("#0E46A3")))
-        elif index.column() == 4:
-            painter.fillRect(option.rect, QBrush(QColor("#433D8B")))
-        elif index.column() == 5:
-            painter.fillRect(option.rect, QBrush(QColor("#35374B")))
-        elif index.column() == 6:
-            painter.fillRect(option.rect, QBrush(QColor("#176B87")))
-        elif index.column() == 7:
-            painter.fillRect(option.rect, QBrush(QColor("#64CCC5")))
-        super().paint(painter, option, index)
+        
+        color = column_colors.get(index.column(), "#FFFFFF")
+        painter.fillRect(option.rect, QBrush(QColor(color)))
+
+        # Yozuv o‘lchamini kattalashtirish va rangini oq qilish
+        painter.setPen(QColor("#FFFFFF"))  # Oq rangda yozish
+        option.font.setPointSize(self.font_size)
+        painter.setFont(option.font)
+
+        # Matnni o'rtaroqqa hizalash
+        option.displayAlignment = Qt.AlignCenter
+
+        # Matnni chizish
+        text = index.data()  # Matnni olish
+        painter.drawText(option.rect, option.displayAlignment, text)
+
+        # Super metodi chaqirilmaydi, agar siz faqat rang va o'lchamni o'zgartirsangiz.
+        # super().paint(painter, option, index)
+
+    # Ustun kengligini kattalashtirish
+    def set_column_widths(self, table_view, widths):
+        for i, width in enumerate(widths):
+            table_view.setColumnWidth(i, width)
+
+    # Qator balandligini sozlash
+    def set_row_heights(self, table_view):
+        row_count = table_view.model().rowCount()
+        for row in range(row_count):
+            table_view.setRowHeight(row, self.cell_height)
+    
+    # Delegatni jadvalga qo'llash
+    def apply_delegate(self, table_view):
+        table_view.setItemDelegate(self)
+
+        # Ustun kengligini sozlash
+        self.set_column_widths(table_view, [120] * table_view.model().columnCount())
+
+        # Qator balandligini sozlash
+        self.set_row_heights(table_view)
+
 
 
 class Medicine_buy(QWidget):
@@ -409,20 +473,26 @@ class Medicine_buy(QWidget):
         self.navbar_box.addStretch(1)
 
         self.amount = QLineEdit()
-        self.amount.setPlaceholderText("1")
+        self.amount.setPlaceholderText("Quantity")
         self.amount.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.amount)
 
         self.add_btn = QPushButton("Add")
         self.add_btn.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.add_btn)
+        self.add_btn.clicked.connect(self.add_to_cart)
         self.navbar_box.addStretch(10)
 
 
 
-        self.card_btn = QPushButton("Korzinka 🧺")
+        self.card_btn = QPushButton("Korzina 🧺")
         self.card_btn.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.card_btn)
+
+
+        self.Korzina_items = QListWidget()
+        self.Korzina_items.maximumHeight()
+
 
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
@@ -438,11 +508,19 @@ class Medicine_buy(QWidget):
         self.users_infos.setModel(self.model)
 
         self.users_infos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.hbox2.addWidget(self.users_infos)
+        self.hbox2.addWidget(self.users_infos, 3)
+        self.hbox2.addWidget(self.Korzina_items, 1)
+
+        # Tahrir qilish imkoniyatlarini o'chirish
+        self.users_infos.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         colorful_delegate = ColorfulDelegate(self)
 
         self.users_infos.setItemDelegate(colorful_delegate)
+
+        # Rangli delegatni qo'llash
+        delegate = ColorfulDelegate(font_size=20, cell_height=60)  # Qator balandligini 40 qilib sozlash
+        delegate.apply_delegate(self.users_infos)
 
         self.navbar_box.addStretch()
 
@@ -457,6 +535,16 @@ class Medicine_buy(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(255, 255, 200))
+
+
+
+    def remove_item(self, item):
+        # List widget dan elementni o'chirish
+        row = self.Korzina_items.row(item)
+        self.Korzina_items.takeItem(row)
+
+
+
 
     def search_items(self):
         search_term = self.search_edit.text().lower()
@@ -476,21 +564,68 @@ class Medicine_buy(QWidget):
             data = self.model.itemFromIndex(index).text()
             self.search_edit.setText(data)
 
+    # def add_data_to_model(self, data):
+
+    #     if self.model.rowCount() == 0:
+    #         for i, row in enumerate(data):
+    #             items = [QStandardItem(str(field)) for field in row]
+    #             self.model.appendRow(items[1:-1])
+
+    #     else:
+    #         self.model.removeRows(0, self.model.rowCount())
+    #         self.search_edit.clear()
+    #         for i, row in enumerate(data):
+    #             items = [QStandardItem(str(field)) for field in row]
+    #             self.model.appendRow(items[1:-1])
+
+
+    def add_to_cart(self):
+        # Mahsulot nomi va miqdorini olish
+        product_name = self.search_edit.text()
+        amount_text = self.amount.text()
+
+        if product_name and amount_text.isdigit():
+            quantity = int(amount_text)
+
+            # Mahsulotni Korzinka'ga qo'shish
+            item_widget = QWidget()
+            item_layout = QHBoxLayout()
+            label = QLabel(f"{product_name} - {quantity} ta")
+            remove_button = QPushButton("Remove")
+            item_layout.addWidget(label)
+            item_layout.addWidget(remove_button)
+            item_widget.setLayout(item_layout)
+
+            list_item = QListWidgetItem()
+            list_item.setSizeHint(item_widget.sizeHint())
+            self.Korzina_items.addItem(list_item)
+            self.Korzina_items.setItemWidget(list_item, item_widget)
+
+            remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+
+            # Maydonlarni tozalash
+            self.search_edit.clear()
+            self.amount.clear()
+
+
     def add_data_to_model(self, data):
-
-        if self.model.rowCount() == 0:
-            for i, row in enumerate(data):
-                items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:-1])
-
-        else:
+        # Modelni tozalash
+        if self.model.rowCount() > 0:
             self.model.removeRows(0, self.model.rowCount())
             self.search_edit.clear()
-            for i, row in enumerate(data):
-                items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:-1])
 
+        # Ma'lumotlarni modelga qo'shish
+        for row in data:
+            # Har bir qator uchun QStandardItem yaratish
+            items = [QStandardItem(str(field)) for field in row]
 
+            # So'nggi ustun uchun "so'm" qo'shish
+            if items:
+                last_item = items[-2]
+                last_item.setText(f"{last_item.text()} so'm")
+
+            # Modelga qo'shish
+            self.model.appendRow(items[1:-1])
 
 class AdminPage(QWidget):
     def __init__(self, items: list) -> None:
