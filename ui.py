@@ -272,6 +272,8 @@ class RegistrationPage(QWidget):
         self.username_input = Edit("Username")
         self.password_input = Edit("Password")
         self.phone_number_input = PhoneLineEdit("+998")
+        self.phone_number_input.setInputMask("+999999999999")
+
         self.warning_number = QLabel()
         self.password_input.setEchoMode(QLineEdit.Password)
 
