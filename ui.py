@@ -145,16 +145,34 @@ class UserLogin(QWidget):
 
     
     def Enter_user_page(self):
-
+        
         items = self.core.Get_all_medicine_items()
-
+        login = self.login_input.text()
+        password = self.password_input.text()
+        users = {
+            "login" : login,
+            "password" : password
+        }
+        _id = self.core.get_user_data(users)
+        if not (login and password):
+            self.info_label.setText("Empty login or password!!!")
+            return
+        print(_id)
+        if not _id:
+            self.info_label.setText("Login or password is error!!!")
+            return
+        self.info_label.clear()
         self.close()
+        self.open_admin_page = Medicine_buy(items)   
 
-        self.admin_page = Medicine_buy(items)
 
     def user_register(self):
         self.close()
         self.registration = RegistrationPage()
+
+
+
+        
 
 class AdminLogin(QWidget):
     def __init__(self) -> None:
@@ -335,6 +353,7 @@ class RegistrationPage(QWidget):
 
 
 
+
 class ColorfulDelegate(QStyledItemDelegate):
     def __init__(self, parent=None, font_size=14, cell_height=30):
         super().__init__(parent)
@@ -481,7 +500,7 @@ class Medicine_buy(QWidget):
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.exit)
-
+        self.exit.clicked.connect(self.exit_sys)
         self.users_infos = QTableView(self)
 
         self.model = QStandardItemModel()
@@ -644,6 +663,8 @@ class Medicine_buy(QWidget):
 
             self.model.appendRow(items[1:-1])
 
+    def exit_sys(self):
+        self.close()
 
 class Buying_items(QWidget):
     def __init__(self, items: list) -> None:
