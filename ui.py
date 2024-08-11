@@ -248,7 +248,6 @@ class AdminLogin(QWidget):
         if not (login and password):
             self.info_lable.setText("Empty login or password!!!")
             return
-        print(_id)
         if not _id:
             self.info_lable.setText("Login or password is error!!!")
             return
@@ -885,17 +884,13 @@ class AdminPage(QWidget):
 
         self.madicine_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-
         colorful_delegate = ColorfulDelegate(self)
-
         self.madicine_table.setItemDelegate(colorful_delegate)
-
 
         delegate = ColorfulDelegate(font_size=20, cell_height=60)
         delegate.apply_delegate(self.madicine_table)
 
-
-        #left
+        # Left layout buttons
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
         self.delete_product = Button("Delete")
@@ -906,11 +901,9 @@ class AdminPage(QWidget):
         self.delete_expired.setEnabled(False)
         self.delete_expired.clicked.connect(self.delete_expired_items)
 
-
-
         self.add_product = Button("Add")
         self.add_product.clicked.connect(self.add_product_database)
-        
+
         self.left_box.addWidget(self.add_product)
         self.left_box.addWidget(self.update_product)
         self.left_box.addWidget(self.delete_product)
@@ -930,10 +923,10 @@ class AdminPage(QWidget):
         self.madicine_table.clicked.connect(self.on_cell_clicked)
         self.show()
 
-
     def show_expired_items(self):
         expired_items = []
         
+
         for row in range(self.model.rowCount()):
             end_date_str = self.model.item(row, 3).text()
             try:
@@ -946,28 +939,26 @@ class AdminPage(QWidget):
                 return
         
         if expired_items:
-        
+
             for row in range(self.model.rowCount()):
                 if row in expired_items:
                     self.madicine_table.setRowHidden(row, False)
                 else:
                     self.madicine_table.setRowHidden(row, True)
                     
-            self.delete_product.setEnabled(True) 
+            self.delete_expired.setEnabled(True) 
         else:
             QMessageBox.information(self, "No Expired Items", "Muddati o'tgan mahsulotlar mavjud emas.")
-            self.delete_product.setEnabled(False) 
-
+            self.delete_expired.setEnabled(False)  
 
     def show_all_items(self):
-        all_items = self.core.Get_all_medicine_items()
+        all_items = self.core.Get_all_medicine_items() 
         self.add_data_to_model(all_items) 
-        self.madicine_table.setRowHidden(0, False) 
 
     def delete_expired_items(self):
-        for row in range(self.model.rowCount() - 1, -1, -1):
+        for row in range(self.model.rowCount() - 1, -1, -1): 
             if not self.madicine_table.isRowHidden(row): 
-                _id = self.model.item(row, 0).text()
+                _id = self.model.item(row, 0).text() 
                 try:
                     success = self.core.delete_medicine(int(_id)) 
                     if not success:
@@ -976,13 +967,11 @@ class AdminPage(QWidget):
                     self.model.removeRow(row) 
                 except Exception as e:
                     QMessageBox.warning(self, "Error", f"Mahsulot ID {_id} o'chirishda xato: {str(e)}")
-                    continue 
+                    continue
 
         QMessageBox.information(self, "Success", "Muddati o'tgan mahsulotlar o'chirildi va arxivga saqlandi.")
-        self.delete_product.setEnabled(False) 
-        self.show_all_items()
-
-
+        self.delete_expired.setEnabled(False) 
+        self.show_all_items() 
 
 
 

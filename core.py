@@ -125,7 +125,7 @@ class Database:
         
 
     def Get_all_medicine_items(self):
-        self.connect() 
+        self.connect()  
         with self.connection.cursor() as cursor:
             query = 'SELECT * FROM Medicine_items'
             cursor.execute(query)
@@ -194,14 +194,12 @@ class Database:
 
         try:
             with self.connection.cursor() as cursor:
-                # Tekshirish: mahsulot mavjudmi
                 cursor.execute("SELECT COUNT(*) FROM Medicine_items WHERE name = %s", (data['name'],))
                 product_exists = cursor.fetchone()[0]
 
                 if product_exists:
                     return "Error: Product already exists"
 
-                # Yangi mahsulotni qo'shish
                 insert_query = """
                 INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
                 VALUES (%s, %s, %s, %s, %s, %s)
@@ -218,6 +216,7 @@ class Database:
             if self.connection.is_connected():
                 self.connection.close()
 
+# O'zgartirib arxivga saqlab ketadi
 
     def delete_medicine(self, medicine_id):
         try:
