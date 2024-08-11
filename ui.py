@@ -807,7 +807,7 @@ class AdminPage(QWidget):
 class AddProductPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
-        self.setFixedSize(800, 900)
+        self.setFixedSize(900, 950)
         self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("Add Product")
         self.show()
@@ -815,32 +815,69 @@ class AddProductPage(QWidget):
         self.setStyleSheet("""
             QLabel{
                 font-size: 30px;
-                color: red;
+                color: #000;
                 font-family: sans-serif;
             }
         """)
     def UI_init(self):
+        self.core = Database()
         self.v_box = QVBoxLayout()
-        self.add_product_name = Edit("Add a new product name")
-        self.add_product_time = Edit("Add a new (yyyy-mm-dd)")
-        self.add_product_end = Edit("Add a new end (yyyy-mm-dd)")
-        self.add_product_term = Edit("Add a new product term")
-        self.add_product_price = Edit("Add a new product price")
-        self.add_product_count = Edit("Add a new product count")
+        self.name_lable = QLabel("Add a new product name:")
+        self.add_product_name = Edit("Example(asperin)")
+
+        self.time_lable = QLabel("Add a new time of production:")
+        self.add_product_time = Edit("yyyy-mm-dd")
+
+        self.end_lable = QLabel("Add a new end time:")
+        self.add_product_end = Edit("yyyy-mm-dd")
+
+
+        self.term_lable = QLabel("Add a new product term:")
+        self.add_product_term = Edit("123...")
+
+        self.price_lable = QLabel("Add a new product price:")
+        self.add_product_price = Edit("1000...")
+
+        self.count_lable = QLabel("Add a new product count:")
+        self.add_product_count = Edit("10...")
+
         self.info_label = QLabel()
         self.save_btn = Button("Save")
         self.save_btn.clicked.connect(self.seve_product)
 
+        self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
+        self.v_box.addStretch(5)
+
+
+        self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
-        self.v_box.addWidget(self.add_product_term, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        # self.v_box.addWidget(self.term_lable, 0, Qt.AlignCenter)
+        # self.v_box.addWidget(self.add_product_term, 0, Qt.AlignCenter)
+        # self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.price_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
         self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
 
         self.setLayout(self.v_box)
+
+        self.info_label.setStyleSheet("""
+            color: red;
+        """)
     
     def seve_product(self):
         name = self.add_product_name.text()
@@ -849,6 +886,26 @@ class AddProductPage(QWidget):
         term = self.add_product_term.text()
         price = self.add_product_price.text()
         count = self.add_product_count.text()
+
+        if not (name and time and end_time and price and count):
+            self.info_label.setText("Fill in the inputs!!!")
+            return
+
+        if not (str(price).isdigit() and str(count).isdigit()): 
+            self.info_label.setText("Enter only numbers in term, price, count")
+            return
+
+
+        dic_madicine = {
+            "name" : name,
+            "produced_time" : time,
+            "end_time" : end_time,
+            "expiration_date" : int(end_time[:3]) - int(time[:3]),
+            "price" : price,
+            "count" : count
+        }
+        self.core.insert_Medicine(dic_madicine)
+        self.close()
         
 
 app = QApplication([])
