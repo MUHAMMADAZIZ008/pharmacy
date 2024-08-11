@@ -7,9 +7,11 @@ from PyQt5.QtWidgets import(
     QStyledItemDelegate,
     QLabel,
     QTableView,
+    QListWidget,
     QHeaderView,
     QMessageBox,
-    QTableWidgetItem
+    QAbstractItemView,
+    QListWidgetItem
 )
 from PyQt5.QtGui import (
     QIcon, 
@@ -22,7 +24,7 @@ from PyQt5.QtGui import (
     QIcon
     )
 
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt
 from Line_Edit import PhoneLineEdit
 from core import *
 
@@ -258,7 +260,6 @@ class RegistrationPage(QWidget):
         self.username_input = Edit("Username")
         self.password_input = Edit("Password")
         self.phone_number_input = PhoneLineEdit("+998")
-        self.warning_user = QLabel()
         self.warning_number = QLabel()
         self.password_input.setEchoMode(QLineEdit.Password)
 
@@ -292,8 +293,6 @@ class RegistrationPage(QWidget):
         self.username_input.setFixedSize(450, 50)
         self.password_input.setFixedSize(450, 50)
         self.phone_number_input.setFixedSize(450, 50)
-        # self.phone_number_input.setText("+998 ")
-        # self.phone_number_input.setPlaceholderText("+998-90-123-45-67")
 
         self.title.setStyleSheet("""
             font-size: 60px;
@@ -332,36 +331,62 @@ class RegistrationPage(QWidget):
             'password' : password,
             'phone_number': phone_number
         } 
-        err = self.core.insert_user(user)
-        if err:
-            self.info_label.setText("Incorrect login or password")
+        self.core.insert_user(user, self.info_label, self.warning_number)
+
 
 
 class ColorfulDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, font_size=14, cell_height=30):
         super().__init__(parent)
+        self.font_size = font_size
+        self.cell_height = cell_height
 
     def paint(self, painter, option, index):
         if not painter:
             return
+     
+        column_colors = {
+            0: "#FF8225", 
+            1: "#003366",
+            2: "#006400",
+            3: "#2E8B57",
+            4: "#8B0000",
+        }
 
-        if index.column() == 0: 
-            painter.fillRect(option.rect, QBrush(QColor("#416692")))
-        elif index.column() == 1:
-            painter.fillRect(option.rect, QBrush(QColor("#9AC8CD")))
-        elif index.column() == 2:
-            painter.fillRect(option.rect, QBrush(QColor("#03346E")))
-        elif index.column() == 3:
-            painter.fillRect(option.rect, QBrush(QColor("#0E46A3")))
-        elif index.column() == 4:
-            painter.fillRect(option.rect, QBrush(QColor("#433D8B")))
-        elif index.column() == 5:
-            painter.fillRect(option.rect, QBrush(QColor("#35374B")))
-        elif index.column() == 6:
-            painter.fillRect(option.rect, QBrush(QColor("#176B87")))
-        elif index.column() == 7:
-            painter.fillRect(option.rect, QBrush(QColor("#64CCC5")))
-        super().paint(painter, option, index)
+        
+        color = column_colors.get(index.column(), "#FFFFFF")
+        painter.fillRect(option.rect, QBrush(QColor(color)))
+
+        painter.setPen(QColor("#FFFFFF")) 
+        option.font.setPointSize(self.font_size)
+        painter.setFont(option.font)
+
+
+        option.displayAlignment = Qt.AlignCenter
+
+
+        text = index.data()
+        painter.drawText(option.rect, option.displayAlignment, text)
+
+
+
+    def set_column_widths(self, table_view, widths):
+        for i, width in enumerate(widths):
+            table_view.setColumnWidth(i, width)
+
+    def set_row_heights(self, table_view):
+        row_count = table_view.model().rowCount()
+        for row in range(row_count):
+            table_view.setRowHeight(row, self.cell_height)
+    
+
+    def apply_delegate(self, table_view):
+        table_view.setItemDelegate(self)
+
+        self.set_column_widths(table_view, [120] * table_view.model().columnCount())
+
+        self.set_row_heights(table_view)
+
 
 
 class Medicine_buy(QWidget):
@@ -423,20 +448,29 @@ class Medicine_buy(QWidget):
         self.navbar_box.addStretch(1)
 
         self.amount = QLineEdit()
-        self.amount.setPlaceholderText("1")
+        self.amount.setPlaceholderText("Quantity")
+        self.amount.setStyleSheet("font-size: 20px;")
         self.amount.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.amount)
 
         self.add_btn = QPushButton("Add")
         self.add_btn.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.add_btn)
+        self.add_btn.clicked.connect(self.add_to_card)
         self.navbar_box.addStretch(10)
 
 
 
-        self.card_btn = QPushButton("Korzinka 🧺")
+        self.card_btn = QPushButton("Korzina 🧺")
         self.card_btn.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.card_btn)
+
+
+        self.Korzina_items = QListWidget()
+        self.Korzina_items.maximumHeight()
+        self.Korzina_items.maximumWidth()
+        self.Korzina_items.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.Korzina_items.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) 
 
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
@@ -452,11 +486,19 @@ class Medicine_buy(QWidget):
         self.users_infos.setModel(self.model)
 
         self.users_infos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.hbox2.addWidget(self.users_infos)
+        self.hbox2.addWidget(self.users_infos, 3)
+        self.hbox2.addWidget(self.Korzina_items, 1)
+
+        # Tahrir qilish imkoniyatlarini o'chirish
+        self.users_infos.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         colorful_delegate = ColorfulDelegate(self)
 
         self.users_infos.setItemDelegate(colorful_delegate)
+
+
+        delegate = ColorfulDelegate(font_size=20, cell_height=60)
+        delegate.apply_delegate(self.users_infos)
 
         self.navbar_box.addStretch()
 
@@ -471,6 +513,14 @@ class Medicine_buy(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(255, 255, 200))
+
+
+
+    # Korzinadan elementni o'chirish
+    def remove_item(self, item):
+        row = self.Korzina_items.row(item)
+        self.Korzina_items.takeItem(row)
+
 
     def search_items(self):
         search_term = self.search_edit.text().lower()
@@ -490,19 +540,79 @@ class Medicine_buy(QWidget):
             data = self.model.itemFromIndex(index).text()
             self.search_edit.setText(data)
 
+
+
+    def add_to_card(self):
+        product_name = self.search_edit.text()
+        quantity_text = self.amount.text()
+        
+        self.search_edit.clear()
+        self.amount.clear()
+
+
+        try:
+            quantity = int(quantity_text)
+        except ValueError:
+
+            return
+        
+
+        price_text = self.get_product_price(product_name)
+        if price_text is None:
+            return
+
+        # Mahsulot narxini integerga o'zgartirish
+        try:
+            price = int(price_text)
+        except ValueError:
+            return
+        
+        # Korzinkaga mahsulotni qo'shish
+        item_widget = QWidget()
+        item_layout = QHBoxLayout()
+        label = QLabel(f"{product_name} - {quantity} ta,  {quantity*price} so'm")
+        label.setStyleSheet("font-size: 20px;")
+        remove_button = QPushButton("Remove")
+        remove_button.setFixedSize(100, 30)
+        remove_button.setStyleSheet("font-size: 20px;")
+        item_layout.addWidget(label)
+        item_layout.addWidget(remove_button)
+        item_widget.setLayout(item_layout)
+
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(item_widget.sizeHint())
+        self.Korzina_items.addItem(list_item)
+        self.Korzina_items.setItemWidget(list_item, item_widget)
+
+        remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+
+        remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+
+
+    def get_product_price(self, product_name):
+        for row in range(self.model.rowCount()):
+            item = self.model.item(row, 0)
+            if item.text() == product_name:
+                price_item = self.model.item(row, 4)
+                return price_item.text().replace(" so'm", "")
+        return None
+
+
     def add_data_to_model(self, data):
 
-        if self.model.rowCount() == 0:
-            for i, row in enumerate(data):
-                items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:-1])
-
-        else:
+        if self.model.rowCount() > 0:
             self.model.removeRows(0, self.model.rowCount())
             self.search_edit.clear()
-            for i, row in enumerate(data):
-                items = [QStandardItem(str(field)) for field in row]
-                self.model.appendRow(items[1:-1])
+
+        for row in data:
+
+            items = [QStandardItem(str(field)) for field in row]
+
+            if items:
+                last_item = items[-2]
+                last_item.setText(f"{last_item.text()} so'm")
+
+            self.model.appendRow(items[1:-1])
 
 
 

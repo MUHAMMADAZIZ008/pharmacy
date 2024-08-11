@@ -31,7 +31,7 @@ CREATE TABLE Users_data(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(32) UNIQUE,
     password VARCHAR(32),
-    phone_number VARCHAR(15)
+    phone_number VARCHAR(15) UNIQUE
 );
 
 
