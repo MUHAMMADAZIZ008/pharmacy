@@ -3,15 +3,6 @@ import mysql.connector
 from mysql.connector import Error
 
 class Database:
-<<<<<<< HEAD
-    def __init__(self) -> None:
-        self.connection = mysql.connector.connect(
-            host = 'localhost',
-            user = 'root',
-            password = 'Mm08gulomov',
-            database = 'pharmacy'
-        )
-=======
     def __init__(self):
         self.connection = None 
         self.connect() 
@@ -21,10 +12,9 @@ class Database:
             self.connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="mr2344",
+                password="Mm08gulomov",
                 database="pharmacy"
             )
->>>>>>> ef0dc176cea3748721bb6def44f8e9eab1b85ea9
 
 
     def insert_user(self, data, info_label, info2_label):

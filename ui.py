@@ -73,6 +73,8 @@ class mainPage(QWidget):
             color: #211C6A;
             font-weight: 600;
         """)
+        self.user_btn.setFixedSize(300, 70)
+        self.admin_btn.setFixedSize(300, 70)
     def enter_user_page(self):
         self.open_user_page = UserLogin()
         self.close()
@@ -86,6 +88,7 @@ class mainPage(QWidget):
         pixmap = QPixmap("main_bg3.png") 
         painter.drawPixmap(self.rect(), pixmap) 
         painter.end()
+
 
 class UserLogin(QWidget):
     def __init__(self) -> None:
@@ -1016,7 +1019,7 @@ class AddProductPage(QWidget):
 
 
         self.term_lable = QLabel("Add a new product term:")
-        self.add_product_term = Edit("123...")
+        self.add_product_term = Edit("5...")
 
         self.price_lable = QLabel("Add a new product price:")
         self.add_product_price = Edit("1000...")
@@ -1083,11 +1086,14 @@ class AddProductPage(QWidget):
             "name" : name,
             "produced_time" : time,
             "end_time" : end_time,
-            "expiration_date" : int(end_time[:3]) - int(time[:3]),
+            "expiration_date" : int(end_time[:4]) - int(time[:4]),
             "price" : price,
             "count" : count
         }
         self.core.insert_Medicine(dic_madicine)
+        items = self.core.Get_all_medicine_items()
+        AdminPage(items).exit_sys()
+        self.update_admin_page = AdminPage(items)
         self.close()
         
 
