@@ -13,7 +13,7 @@ class Database:
             self.connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="Mm08gulomov",
+                password="mr2344",
                 database="pharmacy"
             )
 
@@ -216,25 +216,32 @@ class Database:
             if self.connection.is_connected():
                 self.connection.close()
 
-    def Get_all_users_data(self):
-        with self.connection.cursor() as cursor:
-            query = 'SELECT * FROM medicine_items'
-            cursor.execute(query)
-            
-            rows = cursor.fetchall()
-            
-        return rows
+# O'zgartirib arxivga saqlab ketadi
 
-    def delete_user_data(self, user: dict):
+    def delete_medicine(self, medicine_id):
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute("""
-                DELETE FROM medicine_items
-                WHERE name = %s;
-                """,
-                ( user['name'],))
-            self.connection.commit()
-            return None
-        except Error as err:
-            self.connection.rollback()
-            return str(err)
+
+                cursor.execute("SELECT * FROM Medicine_items WHERE id = %s", (medicine_id,))
+                medicine = cursor.fetchone()
+
+                if medicine:
+
+                    insert_query = """
+                        INSERT INTO Arxiv_items (id, name, produced_time, end_time, expiration_date, price, count)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """
+                    cursor.execute(insert_query, medicine)
+
+                    delete_query = "DELETE FROM Medicine_items WHERE id = %s"
+                    cursor.execute(delete_query, (medicine_id,))
+                    self.connection.commit()
+                    return True
+                else:
+                    return "Mahsulot topilmadi."
+
+        except Exception as e:
+            return str(e)
+
+
+
