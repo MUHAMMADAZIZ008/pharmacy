@@ -25,10 +25,13 @@ from PyQt5.QtGui import (
     )
 
 from PyQt5.QtCore import Qt
+
 from Line_Edit import PhoneLineEdit
+
 from core import *
 
 from classes import *
+
 
 class mainPage(QWidget):
     def __init__(self) -> None:
@@ -61,7 +64,6 @@ class mainPage(QWidget):
         self.setLayout(self.v_box)
         self.show()
 
-        #style
         self.paintEvent(1)
 
 
@@ -108,7 +110,6 @@ class UserLogin(QWidget):
         self.registr_btn = Button("Registration")
         self.registr_btn.clicked.connect(self.user_register)
 
-        #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
         self.right_box.addStretch(50)
@@ -126,10 +127,8 @@ class UserLogin(QWidget):
 
         self.main_box.addLayout(self.right_box)
 
-        #add all
         self.setLayout(self.main_box)
 
-        #style
         self.login_input.setFixedSize(500, 50)
         self.password_input.setFixedSize(500, 50)
         self.title_right.setStyleSheet("""
@@ -145,16 +144,31 @@ class UserLogin(QWidget):
 
     
     def Enter_user_page(self):
-
+        
         items = self.core.Get_all_medicine_items()
-
+        login = self.login_input.text()
+        password = self.password_input.text()
+        users = {
+            "login" : login,
+            "password" : password
+        }
+        _id = self.core.get_user_data(users)
+        if not (login and password):
+            self.info_label.setText("Empty login or password!!!")
+            return
+        if not _id:
+            self.info_label.setText("Login or password is error!!!")
+            return
+        self.info_label.clear()
         self.close()
+        self.open_admin_page = Medicine_buy(items)   
 
-        self.admin_page = Medicine_buy(items)
 
     def user_register(self):
         self.close()
         self.registration = RegistrationPage()
+
+        
 
 class AdminLogin(QWidget):
     def __init__(self) -> None:
@@ -180,8 +194,6 @@ class AdminLogin(QWidget):
         self.back_btn.clicked.connect(self.beck_main)
 
 
-
-        #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
         self.right_box.addStretch(50)
@@ -199,7 +211,6 @@ class AdminLogin(QWidget):
 
         self.main_box.addLayout(self.right_box)
 
-        #add all
         self.setLayout(self.main_box)
 
 
@@ -251,6 +262,7 @@ class RegistrationPage(QWidget):
         self.setStyleSheet("""
             font-size: 30px
         """)
+        self.core = Database()
 
         self.initUI()
     
@@ -260,6 +272,8 @@ class RegistrationPage(QWidget):
         self.username_input = Edit("Username")
         self.password_input = Edit("Password")
         self.phone_number_input = PhoneLineEdit("+998")
+        self.phone_number_input.setInputMask("+999999999999")
+
         self.warning_number = QLabel()
         self.password_input.setEchoMode(QLineEdit.Password)
 
@@ -310,12 +324,12 @@ class RegistrationPage(QWidget):
 
 
     def create_user(self):
-        self.core = Database()
         username = self.username_input.text()
         password = self.password_input.text()
         phone_number = self.phone_number_input.text()
-        print(phone_number)
         self.info_label.clear()
+        self.warning_number.clear()
+        
         if not (username and password):
             self.info_label.setText("Empty login or password!!!")
             return
@@ -327,11 +341,22 @@ class RegistrationPage(QWidget):
             return
 
         user = {
-            'username' : username,
-            'password' : password,
+            'username': username,
+            'password': password,
             'phone_number': phone_number
-        } 
-        self.core.insert_user(user, self.info_label, self.warning_number)
+        }
+        
+        # Foydalanuvchini saqlash
+        success = self.core.insert_user(user, self.info_label, self.warning_number)
+        if success:
+            self.open_medicine_buy() 
+
+    def open_medicine_buy(self):
+        items = self.core.Get_all_medicine_items()        
+        self.medicine_buy_page = Medicine_buy(items)
+        self.close()
+
+
 
 
 
@@ -395,7 +420,7 @@ class Medicine_buy(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
         self.medicine_items = items
-        print(self.medicine_items)
+        self.cart_items = [] 
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -463,9 +488,10 @@ class Medicine_buy(QWidget):
 
 
 
-        self.card_btn = QPushButton("Korzina 🧺")
+        self.card_btn = QPushButton("Buy")
         self.card_btn.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.card_btn)
+        self.card_btn.clicked.connect(self.To_Buy_Medicine)
 
 
         self.Korzina_items = QListWidget()
@@ -474,10 +500,12 @@ class Medicine_buy(QWidget):
         self.Korzina_items.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.Korzina_items.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) 
 
+
+
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.exit)
-
+        self.exit.clicked.connect(self.exit_sys)
         self.users_infos = QTableView(self)
 
         self.model = QStandardItemModel()
@@ -491,7 +519,6 @@ class Medicine_buy(QWidget):
         self.hbox2.addWidget(self.users_infos, 3)
         self.hbox2.addWidget(self.Korzina_items, 1)
 
-        # Tahrir qilish imkoniyatlarini o'chirish
         self.users_infos.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         colorful_delegate = ColorfulDelegate(self)
@@ -499,7 +526,7 @@ class Medicine_buy(QWidget):
         self.users_infos.setItemDelegate(colorful_delegate)
 
 
-        delegate = ColorfulDelegate(font_size=20, cell_height=60)
+        delegate = ColorfulDelegate(font_size=18, cell_height=60)
         delegate.apply_delegate(self.users_infos)
 
         self.navbar_box.addStretch()
@@ -512,16 +539,24 @@ class Medicine_buy(QWidget):
         self.users_infos.clicked.connect(self.on_cell_clicked)
         self.show()
 
+
+    def To_Buy_Medicine(self):
+        self.to_buy = Buying_items(items=self.cart_items)
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(255, 255, 200))
 
 
 
-    # Korzinadan elementni o'chirish
     def remove_item(self, item):
         row = self.Korzina_items.row(item)
         self.Korzina_items.takeItem(row)
+        
+        self.cart_items.pop(row)
+        
+        self.update_summary()
+
 
 
     def search_items(self):
@@ -547,26 +582,21 @@ class Medicine_buy(QWidget):
     def add_to_card(self):
         product_name = self.search_edit.text()
         quantity_text = self.amount.text()
-    
 
         try:
             quantity = int(quantity_text)
         except ValueError:
-
             return
-        
 
         price_text = self.get_product_price(product_name)
         if price_text is None:
             return
 
-        # Mahsulot narxini integerga o'zgartirish
         try:
             price = int(price_text)
         except ValueError:
             return
-        
-        # Korzinkaga mahsulotni qo'shish
+
         item_widget = QWidget()
         item_layout = QHBoxLayout()
         label = QLabel(f"{product_name} - {quantity} ta,  {quantity*price} so'm")
@@ -585,10 +615,34 @@ class Medicine_buy(QWidget):
 
         remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
 
-        remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+        self.cart_items.append({
+            'product_name': product_name,
+            'quantity': int(quantity_text),
+            'price': int(price_text)
+        })
+
+        self.update_summary()
 
         self.search_edit.clear()
         self.amount.clear()
+
+    def update_summary(self):
+        all_items_text = ""
+        total_amount = 0
+
+        for item in self.cart_items:
+            item_text = f"{item['product_name']} - {item['quantity']} ta, {item['price']*item['quantity']} so'm\n"
+            all_items_text += item_text
+            total_amount += item['price'] * item['quantity']
+        
+        if not self.cart_items:
+            all_items_text = "No items in cart.\n"
+        
+        summary_text = f"Najot pharmacy\n{all_items_text}Jami: {total_amount} so'm"
+        
+        print(summary_text)
+
+
 
     def get_product_price(self, product_name):
         for row in range(self.model.rowCount()):
@@ -610,10 +664,142 @@ class Medicine_buy(QWidget):
             items = [QStandardItem(str(field)) for field in row]
 
             if items:
-                last_item = items[-2]
-                last_item.setText(f"{last_item.text()} so'm")
+                price = items[-2]
+                price.setText(f"{price.text()} so'm")
+                year = items[-3]
+                year.setText(f"{year.text()} yil")
+
 
             self.model.appendRow(items[1:-1])
+
+    def exit_sys(self):
+        self.close()
+
+class Buying_items(QWidget):
+    def __init__(self, items: list) -> None:
+        super().__init__()
+        self.medicine_items = items
+        self.total_amount = 0
+        self.setFixedSize(700, 800)
+        self.setWindowTitle("Buying")
+        self.setWindowIcon(QIcon("login_icon.png"))
+
+        self.setStyleSheet("""
+            QHBoxLayout{
+                background: yellow;
+            }
+            QLineEdit{
+                background: #F5F5F5;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+            }
+            QPushButton{
+                background-color: #4B0082;
+                color: white;
+                font-size: 25px;
+                border-radius: 10px;
+                padding: 5px;
+                padding-left: 10px
+            }
+            QTableView {
+                border: 1px solid #4B0082;
+                alternate-background-color: #F0F0F0;
+                gridline-color: #4B0082;
+            }
+            QHeaderView::section {
+                background-color: #4B0082;
+                color: white;
+                font-size: 25px;
+                padding: 5px;
+                border: 1px solid #4B0082;
+            }
+            QTableView::item {
+                padding: 5px;
+            }""")
+
+        self.initUI()
+
+    def initUI(self):
+
+        self.vbox = QVBoxLayout()
+        self.info = QVBoxLayout()
+        self.v_pay = QVBoxLayout()
+
+        all_items_text = ""
+        for item in self.medicine_items:
+            item_text = f"{item['product_name']} - {item['quantity']} ta, {item['price']*item['quantity']} so'm\n"
+            all_items_text += item_text
+            self.total_amount += item['price'] * item['quantity']
+
+        self.summary_label = QLabel(f"          Najot pharmacy\n{all_items_text}Jami: {self.total_amount} so'm")
+        self.summary_label.setStyleSheet("font-size: 20px; padding-left: 20px; background: yellow;")
+        
+        self.info.addWidget(self.summary_label)
+        self.vbox.addLayout(self.info)
+        self.vbox.addStretch(1)
+
+        self.carta_info = QLabel("Karta raqamingizni kiriting:")
+        self.carta_info.setFixedSize(400, 40)
+        self.carta_info.setStyleSheet("font-size: 20px; margin-left: 10px;")
+        self.v_pay.addWidget(self.carta_info)
+
+        self.add_carta = QLineEdit()
+        self.add_carta.setInputMask("9999 9999 9999 9999")
+        self.add_carta.setStyleSheet("background: white; font-size: 20px; padding-left: 10px; margin-left: 10px;")
+        self.add_carta.setFixedSize(400, 60)
+        self.v_pay.addWidget(self.add_carta)
+
+        self.date_info = QLabel("Amal qilish muddati (MM/YY):")
+        self.date_info.setFixedSize(400, 40)
+        self.date_info.setStyleSheet("font-size: 20px; margin-left: 10px;")
+        self.v_pay.addWidget(self.date_info)
+
+        self.add_date = QLineEdit()
+        self.add_date.setInputMask("99/99")
+        self.add_date.setStyleSheet("background: white; font-size: 20px; padding-left: 10px; margin-left: 10px;")
+        self.add_date.setFixedSize(100, 60)
+        self.v_pay.addWidget(self.add_date)
+
+        self.v_pay.addStretch(1)
+
+
+        self.submit_button = QPushButton('Tasdiqlash')
+        self.submit_button.clicked.connect(self.validate_inputs)
+        self.v_pay.addWidget(self.submit_button)
+        
+
+        self.vbox.addLayout(self.v_pay)
+
+
+        self.setLayout(self.vbox)
+        self.show()
+
+
+    def validate_inputs(self):
+
+        valid_cards = ['8600', '9860', '2200', '4276', '5312', '4283', '4831']
+        carta = self.add_carta.text().replace(" ", "")
+        if carta[:4] not in valid_cards or len(carta) != 16:
+            QMessageBox.warning(self, "Xatolik", "Karta raqam noto'g'ri, qaytadan kiriting")
+            self.add_carta.setFocus()
+            return
+
+        date_text = self.add_date.text()
+        try:
+            month, year = map(int, date_text.split('/'))
+            if not (1 <= month <= 12 and 2024 <= 2000 + year <= 2035):
+                QMessageBox.warning(self, "Xatolik", "Amal qilish muddati noto'g'ri, qaytadan kiriting")
+                self.add_date.setFocus()
+                return
+        except ValueError:
+            QMessageBox.warning(self, "Xatolik", "Amal qilish muddati noto'g'ri, qaytadan kiriting")
+            self.add_date.setFocus()
+            return
+
+        QMessageBox.information(self, "Muvaffaqiyatli", "To'lov amalga oshirildi, Salomat bo'ling")
+
 
 
 
@@ -621,7 +807,6 @@ class AdminPage(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
         self.medicine_items = items
-        print(self.medicine_items)
         self.showMaximized()
         self.setWindowTitle("Admin Page")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -698,8 +883,6 @@ class AdminPage(QWidget):
 
         self.madicine_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # delegate = ColorfulDelegate(self)
-        # self.madicine_table.setItemDelegate(delegate)
 
         colorful_delegate = ColorfulDelegate(self)
 

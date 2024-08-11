@@ -3,6 +3,7 @@ import mysql.connector
 from mysql.connector import Error
 
 class Database:
+<<<<<<< HEAD
     def __init__(self) -> None:
         self.connection = mysql.connector.connect(
             host = 'localhost',
@@ -10,8 +11,21 @@ class Database:
             password = 'Mm08gulomov',
             database = 'pharmacy'
         )
+=======
+    def __init__(self):
+        self.connection = None 
+        self.connect() 
 
-# User qo'shish
+    def connect(self):
+        if self.connection is None or not self.connection.is_connected():
+            self.connection = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="mr2344",
+                database="pharmacy"
+            )
+>>>>>>> ef0dc176cea3748721bb6def44f8e9eab1b85ea9
+
 
     def insert_user(self, data, info_label, info2_label):
         try:
@@ -20,27 +34,26 @@ class Database:
                 username = data['username']
                 phone_number = data['phone_number']
 
-
                 cursor.execute("SELECT COUNT(*) FROM Users_data WHERE username = %s", (username,))
                 username_exists = cursor.fetchone()[0]
 
                 if username_exists:
                     info_label.setText("User already exists")
-                    return
+                    return False
 
                 cursor.execute("SELECT COUNT(*) FROM Users_data WHERE phone_number = %s", (phone_number,))
                 phone_number_exists = cursor.fetchone()[0]
 
                 if phone_number_exists:
                     info2_label.setText("Phone number already exists")
-                    return
-
+                    return False
 
                 insert_query = "INSERT INTO Users_data (username, password, phone_number) VALUES (%s, %s, %s)"
                 cursor.execute(insert_query, (username, data['password'], phone_number))
                 self.connection.commit()
                 info_label.setText("User inserted successfully")
                 info2_label.setText("")
+                return True 
 
         except Error as e:
             error_message = str(e)
@@ -51,11 +64,13 @@ class Database:
             else:
                 info_label.setText("General error: " + error_message)
                 info2_label.setText("General error: " + error_message)
-        
+            return False 
+
         finally:
             if self.connection.is_connected():
                 cursor.close()
                 self.connection.close()
+
 
 
 # bitta userni ma'lumotlarini olish va yuborish
@@ -119,14 +134,22 @@ class Database:
         
 # barcha dorilarni ma'lumotlari bilan olish
     
-    def Get_all_medicine_items(self):
-        with self.connection.cursor() as cursor:
+    # def Get_all_medicine_items(self):
+    #     with self.connection.cursor() as cursor:
         
+    #         query = 'SELECT * FROM Medicine_items'
+    #         cursor.execute(query)
+            
+    #         rows = cursor.fetchall()
+            
+    #     return rows
+
+    def Get_all_medicine_items(self):
+        self.connect()  # Ulanishni tekshirish va qayta ochish
+        with self.connection.cursor() as cursor:
             query = 'SELECT * FROM Medicine_items'
             cursor.execute(query)
-            
             rows = cursor.fetchall()
-            
         return rows
     
 # dorini update qilish    
