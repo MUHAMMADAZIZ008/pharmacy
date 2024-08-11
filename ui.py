@@ -322,35 +322,7 @@ class RegistrationPage(QWidget):
             'password' : password,
             'phone_number': phone_number
         } 
-        # err = self.core.insert_user(user)
         self.core.insert_user(user, self.info_label, self.warning_number)
-
-
-# class ColorfulDelegate(QStyledItemDelegate):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-
-#     def paint(self, painter, option, index):
-#         if not painter:
-#             return
-
-#         if index.column() == 0: 
-#             painter.fillRect(option.rect, QBrush(QColor("#416692")))
-#         elif index.column() == 1:
-#             painter.fillRect(option.rect, QBrush(QColor("#9AC8CD")))
-#         elif index.column() == 2:
-#             painter.fillRect(option.rect, QBrush(QColor("#03346E")))
-#         elif index.column() == 3:
-#             painter.fillRect(option.rect, QBrush(QColor("#0E46A3")))
-#         elif index.column() == 4:
-#             painter.fillRect(option.rect, QBrush(QColor("#433D8B")))
-#         elif index.column() == 5:
-#             painter.fillRect(option.rect, QBrush(QColor("#35374B")))
-#         elif index.column() == 6:
-#             painter.fillRect(option.rect, QBrush(QColor("#176B87")))
-#         elif index.column() == 7:
-#             painter.fillRect(option.rect, QBrush(QColor("#64CCC5")))
-#         super().paint(painter, option, index)
 
 
 
@@ -376,38 +348,34 @@ class ColorfulDelegate(QStyledItemDelegate):
         color = column_colors.get(index.column(), "#FFFFFF")
         painter.fillRect(option.rect, QBrush(QColor(color)))
 
-        # Yozuv o‘lchamini kattalashtirish va rangini oq qilish
         painter.setPen(QColor("#FFFFFF")) 
         option.font.setPointSize(self.font_size)
         painter.setFont(option.font)
 
-        # Matnni o'rtaroqqa hizalash
+
         option.displayAlignment = Qt.AlignCenter
 
-        # Matnni chizish
-        text = index.data()  # Matnni olish
+
+        text = index.data()
         painter.drawText(option.rect, option.displayAlignment, text)
 
 
-    # Ustun kengligini kattalashtirish
+
     def set_column_widths(self, table_view, widths):
         for i, width in enumerate(widths):
             table_view.setColumnWidth(i, width)
 
-    # Qator balandligini sozlash
     def set_row_heights(self, table_view):
         row_count = table_view.model().rowCount()
         for row in range(row_count):
             table_view.setRowHeight(row, self.cell_height)
     
-    # Delegatni jadvalga qo'llash
+
     def apply_delegate(self, table_view):
         table_view.setItemDelegate(self)
 
-        # Ustun kengligini sozlash
         self.set_column_widths(table_view, [120] * table_view.model().columnCount())
 
-        # Qator balandligini sozlash
         self.set_row_heights(table_view)
 
 
@@ -448,7 +416,7 @@ class Medicine_buy(QWidget):
             QHeaderView::section {
                 background-color: #4B0082;
                 color: white;
-                font-size: 15px;
+                font-size: 25px;
                 padding: 5px;
                 border: 1px solid #4B0082;
             }
@@ -472,6 +440,7 @@ class Medicine_buy(QWidget):
 
         self.amount = QLineEdit()
         self.amount.setPlaceholderText("Quantity")
+        self.amount.setStyleSheet("font-size: 20px;")
         self.amount.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.amount)
 
@@ -490,7 +459,9 @@ class Medicine_buy(QWidget):
 
         self.Korzina_items = QListWidget()
         self.Korzina_items.maximumHeight()
-
+        self.Korzina_items.maximumWidth()
+        self.Korzina_items.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.Korzina_items.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) 
 
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
@@ -562,37 +533,6 @@ class Medicine_buy(QWidget):
 
 
 
-    # def add_to_cart(self):
-    #     # Mahsulot nomi va miqdorini olish
-    #     product_name = self.search_edit.text()
-    #     amount_text = self.amount.text()
-
-    #     if product_name and amount_text.isdigit():
-    #         quantity = int(amount_text)
-
-    #         # Mahsulotni Korzinka'ga qo'shish
-    #         item_widget = QWidget()
-    #         item_layout = QHBoxLayout()
-    #         label = QLabel(f"{product_name} - {quantity} ta")
-    #         label.setStyleSheet("font-size: 20px")
-    #         remove_button = QPushButton("Remove")
-    #         remove_button.setFixedSize(100, 30)
-    #         remove_button.setStyleSheet("font-size: 20px;")
-    #         item_layout.addWidget(label)
-    #         item_layout.addWidget(remove_button)
-    #         item_widget.setLayout(item_layout)
-
-    #         list_item = QListWidgetItem()
-    #         list_item.setSizeHint(item_widget.sizeHint())
-    #         self.Korzina_items.addItem(list_item)
-    #         self.Korzina_items.setItemWidget(list_item, item_widget)
-
-    #         remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
-
-    #         # Maydonlarni tozalash
-    #         self.search_edit.clear()
-    #         self.amount.clear()
-
     def add_to_card(self):
         product_name = self.search_edit.text()
         quantity_text = self.amount.text()
@@ -600,24 +540,22 @@ class Medicine_buy(QWidget):
         self.search_edit.clear()
         self.amount.clear()
 
-        # Mahsulot miqdorini tekshirish
+
         try:
             quantity = int(quantity_text)
         except ValueError:
-            # Agar miqdor noto'g'ri bo'lsa
+
             return
         
-        # Narxni olish
+
         price_text = self.get_product_price(product_name)
         if price_text is None:
-            # Mahsulot topilmasa
             return
 
         # Mahsulot narxini integerga o'zgartirish
         try:
             price = int(price_text)
         except ValueError:
-            # Agar narx noto'g'ri bo'lsa
             return
         
         # Korzinkaga mahsulotni qo'shish
@@ -644,30 +582,27 @@ class Medicine_buy(QWidget):
 
     def get_product_price(self, product_name):
         for row in range(self.model.rowCount()):
-            item = self.model.item(row, 0)  # Mahsulot nomi
+            item = self.model.item(row, 0)
             if item.text() == product_name:
-                price_item = self.model.item(row, 4)  # Narx ustuni
-                return price_item.text().replace(" so'm", "")  # Narxni olib, " so'm" qismini olib tashlash
+                price_item = self.model.item(row, 4)
+                return price_item.text().replace(" so'm", "")
         return None
 
 
     def add_data_to_model(self, data):
-        # Modelni tozalash
+
         if self.model.rowCount() > 0:
             self.model.removeRows(0, self.model.rowCount())
             self.search_edit.clear()
 
-        # Ma'lumotlarni modelga qo'shish
         for row in data:
-            # Har bir qator uchun QStandardItem yaratish
+
             items = [QStandardItem(str(field)) for field in row]
 
-            # So'nggi ustun uchun "so'm" qo'shish
             if items:
                 last_item = items[-2]
                 last_item.setText(f"{last_item.text()} so'm")
 
-            # Modelga qo'shish
             self.model.appendRow(items[1:-1])
 
 

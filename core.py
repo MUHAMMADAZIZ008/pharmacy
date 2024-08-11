@@ -20,7 +20,7 @@ class Database:
                 username = data['username']
                 phone_number = data['phone_number']
 
-                # Username unique ekanligini tekshirish
+
                 cursor.execute("SELECT COUNT(*) FROM Users_data WHERE username = %s", (username,))
                 username_exists = cursor.fetchone()[0]
 
@@ -28,7 +28,6 @@ class Database:
                     info_label.setText("User already exists")
                     return
 
-                # Phone number unique ekanligini tekshirish
                 cursor.execute("SELECT COUNT(*) FROM Users_data WHERE phone_number = %s", (phone_number,))
                 phone_number_exists = cursor.fetchone()[0]
 
@@ -36,7 +35,7 @@ class Database:
                     info2_label.setText("Phone number already exists")
                     return
 
-                # Agar har ikkalasi ham unique bo'lsa, yangi foydalanuvchini qo'shish
+
                 insert_query = "INSERT INTO Users_data (username, password, phone_number) VALUES (%s, %s, %s)"
                 cursor.execute(insert_query, (username, data['password'], phone_number))
                 self.connection.commit()
@@ -140,7 +139,6 @@ class Database:
                     SET name = "{item['name']}", produced_time = "{item['produced_time']}", end_time = "{item['end_time']}", expiration_date = "{item['expiration_date']}", price = "{item['price']}", count = "{item['count']}"
                     WHERE id = "{item["id"]}";
                 """)
-                # (item['id'], item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'], item['count'] ))
             
             self.connection.commit()
             return True
@@ -164,6 +162,3 @@ class Database:
 
             self.connection.rollback()
             return str(err)
-
-
-
