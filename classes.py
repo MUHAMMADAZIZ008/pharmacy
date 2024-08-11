@@ -28,7 +28,7 @@ class Button(QPushButton):
                 color: #fff;
                 
             }
-             """)
+            """)
         def on_enter(self, event):
             self.setCursor(Qt.PointingHandCursor)  
             super().enterEvent(event)
@@ -42,7 +42,7 @@ class Edit(QLineEdit):
       def __init__(self, text:str = ""):
             super().__init__()
             self.setPlaceholderText(text)
-            self.setFixedSize(350, 50)
+            self.setFixedSize(400, 50)
             self.setStyleSheet("""
                 QLineEdit{
                     padding: 10px;
