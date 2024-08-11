@@ -1,6 +1,7 @@
 #Bismillah
 import mysql.connector
 from mysql.connector import Error
+from datetime import datetime
 
 class Database:
     def __init__(self):
@@ -122,17 +123,6 @@ class Database:
             self.connection.rollback()
             return str(err)
         
-# barcha dorilarni ma'lumotlari bilan olish
-    
-    # def Get_all_medicine_items(self):
-    #     with self.connection.cursor() as cursor:
-        
-    #         query = 'SELECT * FROM Medicine_items'
-    #         cursor.execute(query)
-            
-    #         rows = cursor.fetchall()
-            
-    #     return rows
 
     def Get_all_medicine_items(self):
         self.connect()  # Ulanishni tekshirish va qayta ochish
@@ -144,20 +134,27 @@ class Database:
     
 # dorini update qilish    
 
+
     def update_medicine(self, item: dict):
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute(f"""
+                # Check if the item exists
+                cursor.execute("SELECT COUNT(*) FROM medicine_items WHERE id = %s", (item["id"],))
+                if cursor.fetchone()[0] == 0:
+                    return 0  # No rows found with the given ID
+
+                # Perform the update
+                cursor.execute("""
                     UPDATE medicine_items
-                    SET name = "{item['name']}", produced_time = "{item['produced_time']}", end_time = "{item['end_time']}", expiration_date = "{item['expiration_date']}", price = "{item['price']}", count = "{item['count']}"
-                    WHERE id = "{item["id"]}";
-                """)
-            
+                    SET name = %s, produced_time = %s, end_time = %s, expiration_date = %s, price = %s, count = %s
+                    WHERE id = %s
+                """, (item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'], item['count'], item["id"]))
+
             self.connection.commit()
-            return True
+            return 1  # Update was successful
         except Error as err:
             self.connection.rollback()
-            return str(err)
+            return str(err)  # Return the error message as a string
 
 
     def update_tabele(self, item: dict):
@@ -175,3 +172,49 @@ class Database:
 
             self.connection.rollback()
             return str(err)
+
+
+    def calculate_expiration_date(self, produced_time, end_time):
+        try:
+            produced_date = datetime.strptime(produced_time, '%Y-%m-%d')
+            end_date = datetime.strptime(end_time, '%Y-%m-%d')
+            expiration_date = end_date.year - produced_date.year
+            if (end_date.month, end_date.day) < (produced_date.month, produced_date.day):
+                expiration_date -= 1
+            return expiration_date
+        except ValueError:
+            return None
+
+    def insert_product(self, data):
+        expiration_date = self.calculate_expiration_date(data['produced_time'], data['end_time'])
+        if expiration_date is None:
+            return "Error: Invalid date format. Use yyyy-mm-dd."
+
+        if self.connection is None:
+            return "Error: No connection to the database."
+
+        try:
+            with self.connection.cursor() as cursor:
+                # Tekshirish: mahsulot mavjudmi
+                cursor.execute("SELECT COUNT(*) FROM Medicine_items WHERE name = %s", (data['name'],))
+                product_exists = cursor.fetchone()[0]
+
+                if product_exists:
+                    return "Error: Product already exists"
+
+                # Yangi mahsulotni qo'shish
+                insert_query = """
+                INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(insert_query, (data['name'], data['produced_time'], data['end_time'], expiration_date, data['price'], data['count']))
+                self.connection.commit()
+                return "Product added successfully"
+
+        except Error as e:
+            error_message = str(e)
+            return f"Error: {error_message}"
+
+        finally:
+            if self.connection.is_connected():
+                self.connection.close()
