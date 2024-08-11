@@ -32,6 +32,8 @@ from core import *
 
 from classes import *
 
+from datetime import datetime
+
 
 class mainPage(QWidget):
     def __init__(self) -> None:
@@ -240,13 +242,13 @@ class AdminLogin(QWidget):
         }
         _id = self.core.get_admin_data(users)
         self.info_lable.clear()
-        # if not (login and password):
-        #     self.info_lable.setText("Empty login or password!!!")
-        #     return
-        # print(_id)
-        # if not _id:
-        #     self.info_lable.setText("Login or password is error!!!")
-        #     return
+        if not (login and password):
+            self.info_lable.setText("Empty login or password!!!")
+            return
+        print(_id)
+        if not _id:
+            self.info_lable.setText("Login or password is error!!!")
+            return
         self.close()
         self.open_admin_page = AdminPage(items)     
 
@@ -346,7 +348,6 @@ class RegistrationPage(QWidget):
             'phone_number': phone_number
         }
         
-        # Foydalanuvchini saqlash
         success = self.core.insert_user(user, self.info_label, self.warning_number)
         if success:
             self.open_medicine_buy() 
@@ -801,8 +802,6 @@ class Buying_items(QWidget):
         QMessageBox.information(self, "Muvaffaqiyatli", "To'lov amalga oshirildi, Salomat bo'ling")
 
 
-
-
 class AdminPage(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
@@ -847,7 +846,7 @@ class AdminPage(QWidget):
             }
             QTableView::item {
                 padding: 5px;
-                color: #00;
+                color: #000000;
                 font-size: 25px;
                 font-family: sans-serif;
             }""")
@@ -926,7 +925,6 @@ class AdminPage(QWidget):
         painter.fillRect(self.rect(), QColor(10, 15, 31))
 
 
-
     def search_items(self):
         search_term = self.line_edit.text().lower()
         for row in range(self.model.rowCount()):
@@ -953,11 +951,13 @@ class AdminPage(QWidget):
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items)
     
+    
     def add_product_database(self):
         self.add_product_page = AddProductPage()
 
+
     def update_poduct_database(self):
-        is_true = False
+        success = True
         for row in range(self.model.rowCount()):
             product_dic = {}
             _id = self.model.item(row, 0).text()
@@ -967,22 +967,30 @@ class AdminPage(QWidget):
             muddati = self.model.item(row, 4).text()
             narxi = self.model.item(row, 5).text()
             soni = self.model.item(row, 6).text()
+
             product_dic = {
-                "id" : int(_id),
+                "id": int(_id),
                 "name": product,
-                "produced_time" : produced_time,
-                "end_time" : end_time,
-                "expiration_date" : int(muddati),
-                "price" : int(narxi),
-                "count" : int(soni)
+                "produced_time": produced_time,
+                "end_time": end_time,
+                "expiration_date": int(muddati),
+                "price": int(narxi),
+                "count": int(soni)
             }
-            print(product_dic)
-            is_true = self.core.update_medicine(product_dic)
-        print(is_true)
-        if is_true:
-            QMessageBox.information(self, "Success", "Data updated in the database successfully.")
-        else:
-            QMessageBox.information(self, "Success", "There is an input error.")
+
+    
+            update_result = self.core.update_medicine(product_dic)
+            if isinstance(update_result, str):
+                QMessageBox.warning(self, "Error", f"Bu mahsulotdan bor ID {_id}: {update_result}")
+                success = False
+            elif update_result == 0:
+                QMessageBox.warning(self, "Error", f"Product with ID {_id} does not exist.")
+                success = False
+
+        if success:
+            QMessageBox.information(self, "Success", "Ma'lumot xotiraga muvaffaqqiyatli saqlandi.")
+
+
     def exit_sys(self):
         self.close()
 
@@ -1002,22 +1010,34 @@ class AddProductPage(QWidget):
                 font-family: sans-serif;
             }
         """)
+        self.db = Database()
+
     def UI_init(self):
         self.v_box = QVBoxLayout()
-        self.add_product_name = Edit("Add a new product name")
-        self.add_product_time = Edit("Add a new (yyyy-mm-dd)")
-        self.add_product_end = Edit("Add a new end (yyyy-mm-dd)")
-        self.add_product_term = Edit("Add a new product term")
-        self.add_product_price = Edit("Add a new product price")
-        self.add_product_count = Edit("Add a new product count")
+
+        self.add_product_name = QLineEdit()
+        self.add_product_name.setPlaceholderText("Add a new product name")
+        
+        self.add_product_time = QLineEdit()
+        self.add_product_time.setPlaceholderText("Add produced time (yyyy-mm-dd)")
+        
+        self.add_product_end = QLineEdit()
+        self.add_product_end.setPlaceholderText("Add end time (yyyy-mm-dd)")
+    
+        
+        self.add_product_price = QLineEdit()
+        self.add_product_price.setPlaceholderText("Add product price")
+        
+        self.add_product_count = QLineEdit()
+        self.add_product_count.setPlaceholderText("Add product count")
+
         self.info_label = QLabel()
-        self.save_btn = Button("Save")
-        self.save_btn.clicked.connect(self.seve_product)
+        self.save_btn = QPushButton("Save")
+        self.save_btn.clicked.connect(self.save_product)
 
         self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
-        self.v_box.addWidget(self.add_product_term, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
@@ -1025,14 +1045,53 @@ class AddProductPage(QWidget):
 
         self.setLayout(self.v_box)
     
-    def seve_product(self):
+
+    def save_product(self):
         name = self.add_product_name.text()
-        time = self.add_product_time.text()
+        produced_time = self.add_product_time.text()
         end_time = self.add_product_end.text()
-        term = self.add_product_term.text()
         price = self.add_product_price.text()
         count = self.add_product_count.text()
-        
+
+        try:
+
+            produced_date = datetime.strptime(produced_time, '%Y-%m-%d')
+            end_date = datetime.strptime(end_time, '%Y-%m-%d')
+            current_date = datetime.now()
+
+            if end_date < current_date:
+                self.info_label.setText("Error: Yaroqliligi tugash vaqti hozirgi vaqtdan kichik bolmasligi kerak.")
+                return
+            if produced_date > current_date:
+                self.info_label.setText("Error: Ishlab chiqarilgan vaqti hozirgi vaqtdan katta bo'lmasligi kerak.")
+                return
+            if end_date <= produced_date:
+                self.info_label.setText("Error: Yaroqliligi tugash vaqti ishlab chiqarilgan vaqtidan katta bo'lishi kerak.")
+                return
+
+            expiration_date = end_date.year - produced_date.year
+            if (end_date.month, end_date.day) < (produced_date.month, produced_date.day):
+                expiration_date -= 1
+
+        except ValueError:
+            self.info_label.setText("Error: Noto'g'ri format! Use yyyy-mm-dd.")
+            return
+
+
+        data = {
+            'name': name,
+            'produced_time': produced_time,
+            'end_time': end_time,
+            'expiration_date': expiration_date,
+            'price': price,
+            'count': count
+        }
+
+        result = self.db.insert_product(data)
+        self.info_label.setText(result)
+
+
+
 
 app = QApplication([])
 login_page = mainPage()
