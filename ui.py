@@ -8,8 +8,7 @@ from PyQt5.QtWidgets import(
     QLabel,
     QTableView,
     QHeaderView,
-    QMessageBox,
-    QTableWidgetItem
+    QMessageBox
 )
 from PyQt5.QtGui import (
     QIcon, 
@@ -22,7 +21,7 @@ from PyQt5.QtGui import (
     QIcon
     )
 
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt
 from Line_Edit import PhoneLineEdit
 from core import *
 
@@ -249,7 +248,6 @@ class RegistrationPage(QWidget):
         self.username_input = Edit("Username")
         self.password_input = Edit("Password")
         self.phone_number_input = PhoneLineEdit("+998")
-        self.warning_user = QLabel()
         self.warning_number = QLabel()
         self.password_input.setEchoMode(QLineEdit.Password)
 
@@ -283,8 +281,6 @@ class RegistrationPage(QWidget):
         self.username_input.setFixedSize(450, 50)
         self.password_input.setFixedSize(450, 50)
         self.phone_number_input.setFixedSize(450, 50)
-        # self.phone_number_input.setText("+998 ")
-        # self.phone_number_input.setPlaceholderText("+998-90-123-45-67")
 
         self.title.setStyleSheet("""
             font-size: 60px;
@@ -323,9 +319,8 @@ class RegistrationPage(QWidget):
             'password' : password,
             'phone_number': phone_number
         } 
-        err = self.core.insert_user(user)
-        if err:
-            self.info_label.setText("Incorrect login or password")
+        # err = self.core.insert_user(user)
+        self.core.insert_user(user, self.info_label, self.warning_number)
 
 
 class ColorfulDelegate(QStyledItemDelegate):

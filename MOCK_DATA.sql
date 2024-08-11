@@ -31,7 +31,7 @@ CREATE TABLE Users_data(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(32) UNIQUE,
     password VARCHAR(32),
-    phone_number VARCHAR(15)
+    phone_number VARCHAR(15) UNIQUE
 );
 
 
@@ -39,7 +39,6 @@ CREATE TABLE Users_data(
 SELECT * FROM Medicine_items;
 
 
-<<<<<<< HEAD
 INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
 VALUES ('Aspirin', '2024-01-01', '2025-01-01', 1, 500, 100),  -- Saqlash muddati 1 yil
        ('Paracetamol', '2024-02-15', '2025-02-15', 1, 800, 200),  -- Saqlash muddati 1 yil
@@ -79,8 +78,3 @@ VALUES ('Aspirin', '2024-01-01', '2025-01-01', 1, 500, 100),  -- Saqlash muddati
        ('Dandruff Shampoo', '2025-09-10', '2027-09-10', 2, 1700, 90),  -- Saqlash muddati 2 yil
        ('Foot Cream', '2025-10-01', '2027-10-01', 2, 1200, 80),  -- Saqlash muddati 2 yil
        ('Wound Ointment', '2025-10-15', '2028-10-15', 3, 2200, 120);  -- Saqlash muddati 3 yil
-=======
-UPDATE medicine_items
-SET name = "amptisilin", produced_time = "2024-07-08", end_time = "2029-07-08", expiration_date = 5, price = 400, count = 7000
-WHERE id = 1;
->>>>>>> febea133d973218edf22a1d2abb7cec5dd42a577
