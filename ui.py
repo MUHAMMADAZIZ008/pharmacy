@@ -1038,21 +1038,21 @@ class AddProductPage(QWidget):
         self.save_btn = QPushButton("Save")
         self.save_btn.clicked.connect(self.save_product)
 
-        self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
+        # self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
         self.v_box.addStretch(5)
 
 
-        self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
+        # self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
-        self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
+        # self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
-        self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
+        # self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
