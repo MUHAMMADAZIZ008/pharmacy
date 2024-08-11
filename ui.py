@@ -377,7 +377,7 @@ class ColorfulDelegate(QStyledItemDelegate):
         painter.fillRect(option.rect, QBrush(QColor(color)))
 
         # Yozuv o‘lchamini kattalashtirish va rangini oq qilish
-        painter.setPen(QColor("#FFFFFF"))  # Oq rangda yozish
+        painter.setPen(QColor("#FFFFFF")) 
         option.font.setPointSize(self.font_size)
         painter.setFont(option.font)
 
@@ -388,8 +388,6 @@ class ColorfulDelegate(QStyledItemDelegate):
         text = index.data()  # Matnni olish
         painter.drawText(option.rect, option.displayAlignment, text)
 
-        # Super metodi chaqirilmaydi, agar siz faqat rang va o'lchamni o'zgartirsangiz.
-        # super().paint(painter, option, index)
 
     # Ustun kengligini kattalashtirish
     def set_column_widths(self, table_view, widths):
@@ -480,7 +478,7 @@ class Medicine_buy(QWidget):
         self.add_btn = QPushButton("Add")
         self.add_btn.setFixedSize(100, 50)
         self.navbar_box.addWidget(self.add_btn)
-        self.add_btn.clicked.connect(self.add_to_cart)
+        self.add_btn.clicked.connect(self.add_to_card)
         self.navbar_box.addStretch(10)
 
 
@@ -518,8 +516,8 @@ class Medicine_buy(QWidget):
 
         self.users_infos.setItemDelegate(colorful_delegate)
 
-        # Rangli delegatni qo'llash
-        delegate = ColorfulDelegate(font_size=20, cell_height=60)  # Qator balandligini 40 qilib sozlash
+
+        delegate = ColorfulDelegate(font_size=20, cell_height=60)
         delegate.apply_delegate(self.users_infos)
 
         self.navbar_box.addStretch()
@@ -538,12 +536,10 @@ class Medicine_buy(QWidget):
 
 
 
+    # Korzinadan elementni o'chirish
     def remove_item(self, item):
-        # List widget dan elementni o'chirish
         row = self.Korzina_items.row(item)
         self.Korzina_items.takeItem(row)
-
-
 
 
     def search_items(self):
@@ -564,48 +560,95 @@ class Medicine_buy(QWidget):
             data = self.model.itemFromIndex(index).text()
             self.search_edit.setText(data)
 
-    # def add_data_to_model(self, data):
 
-    #     if self.model.rowCount() == 0:
-    #         for i, row in enumerate(data):
-    #             items = [QStandardItem(str(field)) for field in row]
-    #             self.model.appendRow(items[1:-1])
 
-    #     else:
-    #         self.model.removeRows(0, self.model.rowCount())
+    # def add_to_cart(self):
+    #     # Mahsulot nomi va miqdorini olish
+    #     product_name = self.search_edit.text()
+    #     amount_text = self.amount.text()
+
+    #     if product_name and amount_text.isdigit():
+    #         quantity = int(amount_text)
+
+    #         # Mahsulotni Korzinka'ga qo'shish
+    #         item_widget = QWidget()
+    #         item_layout = QHBoxLayout()
+    #         label = QLabel(f"{product_name} - {quantity} ta")
+    #         label.setStyleSheet("font-size: 20px")
+    #         remove_button = QPushButton("Remove")
+    #         remove_button.setFixedSize(100, 30)
+    #         remove_button.setStyleSheet("font-size: 20px;")
+    #         item_layout.addWidget(label)
+    #         item_layout.addWidget(remove_button)
+    #         item_widget.setLayout(item_layout)
+
+    #         list_item = QListWidgetItem()
+    #         list_item.setSizeHint(item_widget.sizeHint())
+    #         self.Korzina_items.addItem(list_item)
+    #         self.Korzina_items.setItemWidget(list_item, item_widget)
+
+    #         remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+
+    #         # Maydonlarni tozalash
     #         self.search_edit.clear()
-    #         for i, row in enumerate(data):
-    #             items = [QStandardItem(str(field)) for field in row]
-    #             self.model.appendRow(items[1:-1])
+    #         self.amount.clear()
 
-
-    def add_to_cart(self):
-        # Mahsulot nomi va miqdorini olish
+    def add_to_card(self):
         product_name = self.search_edit.text()
-        amount_text = self.amount.text()
+        quantity_text = self.amount.text()
+        
+        self.search_edit.clear()
+        self.amount.clear()
 
-        if product_name and amount_text.isdigit():
-            quantity = int(amount_text)
+        # Mahsulot miqdorini tekshirish
+        try:
+            quantity = int(quantity_text)
+        except ValueError:
+            # Agar miqdor noto'g'ri bo'lsa
+            return
+        
+        # Narxni olish
+        price_text = self.get_product_price(product_name)
+        if price_text is None:
+            # Mahsulot topilmasa
+            return
 
-            # Mahsulotni Korzinka'ga qo'shish
-            item_widget = QWidget()
-            item_layout = QHBoxLayout()
-            label = QLabel(f"{product_name} - {quantity} ta")
-            remove_button = QPushButton("Remove")
-            item_layout.addWidget(label)
-            item_layout.addWidget(remove_button)
-            item_widget.setLayout(item_layout)
+        # Mahsulot narxini integerga o'zgartirish
+        try:
+            price = int(price_text)
+        except ValueError:
+            # Agar narx noto'g'ri bo'lsa
+            return
+        
+        # Korzinkaga mahsulotni qo'shish
+        item_widget = QWidget()
+        item_layout = QHBoxLayout()
+        label = QLabel(f"{product_name} - {quantity} ta,  {quantity*price} so'm")
+        label.setStyleSheet("font-size: 20px;")
+        remove_button = QPushButton("Remove")
+        remove_button.setFixedSize(100, 30)
+        remove_button.setStyleSheet("font-size: 20px;")
+        item_layout.addWidget(label)
+        item_layout.addWidget(remove_button)
+        item_widget.setLayout(item_layout)
 
-            list_item = QListWidgetItem()
-            list_item.setSizeHint(item_widget.sizeHint())
-            self.Korzina_items.addItem(list_item)
-            self.Korzina_items.setItemWidget(list_item, item_widget)
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(item_widget.sizeHint())
+        self.Korzina_items.addItem(list_item)
+        self.Korzina_items.setItemWidget(list_item, item_widget)
 
-            remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+        remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
 
-            # Maydonlarni tozalash
-            self.search_edit.clear()
-            self.amount.clear()
+        remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
+
+
+    def get_product_price(self, product_name):
+        for row in range(self.model.rowCount()):
+            item = self.model.item(row, 0)  # Mahsulot nomi
+            if item.text() == product_name:
+                price_item = self.model.item(row, 4)  # Narx ustuni
+                return price_item.text().replace(" so'm", "")  # Narxni olib, " so'm" qismini olib tashlash
+        return None
 
 
     def add_data_to_model(self, data):
@@ -626,6 +669,8 @@ class Medicine_buy(QWidget):
 
             # Modelga qo'shish
             self.model.appendRow(items[1:-1])
+
+
 
 class AdminPage(QWidget):
     def __init__(self, items: list) -> None:
