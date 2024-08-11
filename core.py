@@ -244,4 +244,28 @@ class Database:
             return str(e)
 
 
+    def Get_all_users_data(self):
+        with self.connection.cursor() as cursor:
+            query = 'SELECT * FROM medicine_items'
+            cursor.execute(query)
+            
+            rows = cursor.fetchall()
+            
+        return rows
+
+    def delete_user_data(self, user: dict):
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute("""
+                DELETE FROM medicine_items
+                WHERE name = %s;
+                """,
+                ( user['name'],))
+            self.connection.commit()
+            return None
+        except Error as err:
+            self.connection.rollback()
+            return str(err)
+
+
 
