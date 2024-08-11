@@ -351,6 +351,8 @@ class ColorfulDelegate(QStyledItemDelegate):
             2: "#006400",
             3: "#2E8B57",
             4: "#8B0000",
+            5: "#5F939A",
+            6: "#068FFF"
         }
 
         
@@ -545,10 +547,7 @@ class Medicine_buy(QWidget):
     def add_to_card(self):
         product_name = self.search_edit.text()
         quantity_text = self.amount.text()
-        
-        self.search_edit.clear()
-        self.amount.clear()
-
+    
 
         try:
             quantity = int(quantity_text)
@@ -588,6 +587,8 @@ class Medicine_buy(QWidget):
 
         remove_button.clicked.connect(lambda checked, item=list_item: self.remove_item(item))
 
+        self.search_edit.clear()
+        self.amount.clear()
 
     def get_product_price(self, product_name):
         for row in range(self.model.rowCount()):
@@ -697,8 +698,17 @@ class AdminPage(QWidget):
 
         self.madicine_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        delegate = ColorfulDelegate(self)
-        self.madicine_table.setItemDelegate(delegate)
+        # delegate = ColorfulDelegate(self)
+        # self.madicine_table.setItemDelegate(delegate)
+
+        colorful_delegate = ColorfulDelegate(self)
+
+        self.madicine_table.setItemDelegate(colorful_delegate)
+
+
+        delegate = ColorfulDelegate(font_size=20, cell_height=60)
+        delegate.apply_delegate(self.madicine_table)
+
 
         #left
         self.update_product = Button("Update")
