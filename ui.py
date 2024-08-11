@@ -75,6 +75,8 @@ class mainPage(QWidget):
             color: #211C6A;
             font-weight: 600;
         """)
+        self.user_btn.setFixedSize(300, 70)
+        self.admin_btn.setFixedSize(300, 70)
     def enter_user_page(self):
         self.open_user_page = UserLogin()
         self.close()
@@ -88,6 +90,7 @@ class mainPage(QWidget):
         pixmap = QPixmap("main_bg3.png") 
         painter.drawPixmap(self.rect(), pixmap) 
         painter.end()
+
 
 class UserLogin(QWidget):
     def __init__(self) -> None:
@@ -385,7 +388,7 @@ class ColorfulDelegate(QStyledItemDelegate):
         color = column_colors.get(index.column(), "#FFFFFF")
         painter.fillRect(option.rect, QBrush(QColor(color)))
 
-        painter.setPen(QColor("#FFFFFF")) 
+        painter.setPen(QColor("#FFFFFF"))
         option.font.setPointSize(self.font_size)
         painter.setFont(option.font)
 
@@ -998,7 +1001,7 @@ class AdminPage(QWidget):
 class AddProductPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
-        self.setFixedSize(800, 900)
+        self.setFixedSize(900, 950)
         self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("Add Product")
         self.show()
@@ -1006,13 +1009,14 @@ class AddProductPage(QWidget):
         self.setStyleSheet("""
             QLabel{
                 font-size: 30px;
-                color: red;
+                color: #000;
                 font-family: sans-serif;
             }
         """)
         self.db = Database()
 
     def UI_init(self):
+        self.core = Database()
         self.v_box = QVBoxLayout()
 
         self.add_product_name = QLineEdit()
@@ -1035,15 +1039,32 @@ class AddProductPage(QWidget):
         self.save_btn = QPushButton("Save")
         self.save_btn.clicked.connect(self.save_product)
 
+        self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
+        self.v_box.addStretch(5)
+
+
+        self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
         self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
 
         self.setLayout(self.v_box)
+
+        self.info_label.setStyleSheet("""
+            color: red;
+        """)
     
 
     def save_product(self):
