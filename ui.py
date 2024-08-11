@@ -357,7 +357,7 @@ class ColorfulDelegate(QStyledItemDelegate):
         color = column_colors.get(index.column(), "#FFFFFF")
         painter.fillRect(option.rect, QBrush(QColor(color)))
 
-        painter.setPen(QColor("#FFFFFF")) 
+        painter.setPen(QColor("#FFFFFF"))
         option.font.setPointSize(self.font_size)
         painter.setFont(option.font)
 
