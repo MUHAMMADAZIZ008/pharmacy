@@ -13,7 +13,7 @@ class Database:
             self.connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="mr2344",
+                password="Mm08gulomov",
                 database="pharmacy"
             )
 
@@ -218,3 +218,26 @@ class Database:
         finally:
             if self.connection.is_connected():
                 self.connection.close()
+
+    def Get_all_users_data(self):
+        with self.connection.cursor() as cursor:
+            query = 'SELECT * FROM medicine_items'
+            cursor.execute(query)
+            
+            rows = cursor.fetchall()
+            
+        return rows
+
+    def delete_user_data(self, user: dict):
+        try:
+            with self.connection.cursor() as cursor:
+                cursor.execute("""
+                DELETE FROM medicine_items
+                WHERE name = %s;
+                """,
+                ( user['name'],))
+            self.connection.commit()
+            return None
+        except Error as err:
+            self.connection.rollback()
+            return str(err)

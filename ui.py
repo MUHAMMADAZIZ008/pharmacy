@@ -899,6 +899,8 @@ class AdminPage(QWidget):
         self.update_product.clicked.connect(self.update_poduct_database)
 
         self.delete_product = Button("Delete")
+        self.delete_product.clicked.connect(self.delete_product_func)
+
         self.expired_product = Button("Expired")
 
         self.add_product = Button("Add")
@@ -996,6 +998,21 @@ class AdminPage(QWidget):
     def exit_sys(self):
         self.close()
 
+    def delete_product_func(self):
+        # self.core = Database()
+        
+        name = self.line_edit.text()
+        product = {
+            'name' : name
+        }
+        err = self.core.delete_user_data(product)
+        if err:
+            QMessageBox.information(self, err)
+        
+        product_data = self.core.Get_all_users_data()
+        product_list = [list(product) for product in product_data]
+        self.add_data_to_model(product_list)
+
 
 class AddProductPage(QWidget):
     def __init__(self) -> None:
@@ -1018,41 +1035,44 @@ class AddProductPage(QWidget):
         self.core = Database()
         self.v_box = QVBoxLayout()
 
-        self.add_product_name = QLineEdit()
-        self.add_product_name.setPlaceholderText("Add a new product name")
-        
-        self.add_product_time = QLineEdit()
-        self.add_product_time.setPlaceholderText("Add produced time (yyyy-mm-dd)")
-        
-        self.add_product_end = QLineEdit()
-        self.add_product_end.setPlaceholderText("Add end time (yyyy-mm-dd)")
+        self.name_lable = QLabel("Add a new product name:")
+        self.add_product_name = Edit("...")
+
+        self.time_lable = QLabel("Add produced time (yyyy-mm-dd):")   
+        self.add_product_time = Edit("...")
+
+        self.end_lable = QLabel("Add end time (yyyy-mm-dd):")
+        self.add_product_end = Edit("...")
     
-        
-        self.add_product_price = QLineEdit()
-        self.add_product_price.setPlaceholderText("Add product price")
-        
-        self.add_product_count = QLineEdit()
-        self.add_product_count.setPlaceholderText("Add product count")
+        self.price_lable = QLabel("Add product price:")        
+        self.add_product_price = Edit("...")
+
+        self.count_lable = QLabel("Add product count:")
+        self.add_product_count = Edit("...")
+
 
         self.info_label = QLabel()
-        self.save_btn = QPushButton("Save")
+        self.save_btn = Button("Save")
         self.save_btn.clicked.connect(self.save_product)
 
-        # self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.name_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
-        self.v_box.addStretch(5)
+        self.v_box.addStretch(3)
 
 
-        # self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.time_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
-        # self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.end_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
+        self.v_box.addStretch(3)
+
+        self.v_box.addWidget(self.price_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
-        # self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.count_lable, 0, Qt.AlignCenter)
         self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
         self.v_box.addStretch(3)
 
