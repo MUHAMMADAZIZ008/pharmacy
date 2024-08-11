@@ -1,58 +1,72 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QLineEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QPushButton, QLabel, QHBoxLayout
 
-class MainWindow(QMainWindow):
+class MainPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Dori Qidirish')
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowTitle("Main Page")
 
-        # Create a widget for the central area
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        self.layout = QVBoxLayout()
 
-        # Create a QVBoxLayout for the central widget
-        layout = QVBoxLayout()
-        central_widget.setLayout(layout)
+        # QListWidget yaratish
+        self.list_widget = QListWidget()
+        self.layout.addWidget(self.list_widget)
 
-        # Create a QLineEdit for search input
-        self.search_box = QLineEdit()
-        self.search_box.setPlaceholderText('Dori nomini kiriting...')
-        layout.addWidget(self.search_box)
+        # 10 ta elementni qo'shish
+        self.items = []
+        for i in range(10):
+            item_widget = QWidget()
+            item_layout = QHBoxLayout()
+            button = QPushButton(f"Button {i+1}")
+            label = QLabel(f"Item {i+1}")
+            item_layout.addWidget(button)
+            item_layout.addWidget(label)
+            item_widget.setLayout(item_layout)
 
-        # Create a QTableWidget to display the drugs
-        self.table_widget = QTableWidget()
-        self.table_widget.setColumnCount(1)  # Assume one column for drug names
-        self.table_widget.setHorizontalHeaderLabels(['Dori nomi'])
-        layout.addWidget(self.table_widget)
+            list_item = QListWidgetItem()
+            list_item.setSizeHint(item_widget.sizeHint())
+            self.list_widget.addItem(list_item)
+            self.list_widget.setItemWidget(list_item, item_widget)
 
-        # Example drug data
-        self.drugs = [
-            'Paracetamol', "Paracetamol", 'Paragina', 'Aspirin', 'Amoxicillin', 'Cough Syrup', 'Vitamin C'
-        ]
+            # Yozuvlarni saqlash
+            self.items.append((label.text(),))
 
-        # Populate the table with the example drug data
-        self.populate_table(self.drugs)
+        # O'tish tugmasi
+        self.next_button = QPushButton("Next Page")
+        self.layout.addWidget(self.next_button)
 
-        # Connect the textChanged signal to the search method
-        self.search_box.textChanged.connect(self.search_drugs)
+        self.next_button.clicked.connect(self.open_next_page)
 
-    def populate_table(self, drugs):
-        self.table_widget.setRowCount(len(drugs))
-        for row, drug in enumerate(drugs):
-            self.table_widget.setItem(row, 0, QTableWidgetItem(drug))
+        self.setLayout(self.layout)
 
-    def search_drugs(self):
-        search_term = self.search_box.text().lower()
-        for row in range(self.table_widget.rowCount()):
-            item = self.table_widget.item(row, 0)
-            if search_term in item.text().lower():
-                self.table_widget.setRowHidden(row, False)
-            else:
-                self.table_widget.setRowHidden(row, True)
+    def open_next_page(self):
+        # Yangi oyna yaratish
+        self.next_page_window = QWidget()
+        self.next_page_window.setWindowTitle("Next Page")
+        next_layout = QVBoxLayout()
 
-if __name__ == '__main__':
-    app = QApplication([])
-    window = MainWindow()
-    window.show()
-    app.exec_()
+        # Yangi QListWidget yaratish va yozuvlarni qo'shish
+        new_list_widget = QListWidget()
+
+        for text in self.items:
+            item_widget = QWidget()
+            item_layout = QHBoxLayout()
+            label = QLabel(text[0])  # Faqat yozuvni qo'shish
+            item_layout.addWidget(label)
+            item_widget.setLayout(item_layout)
+
+            new_item = QListWidgetItem()
+            new_item.setSizeHint(item_widget.sizeHint())
+            new_list_widget.addItem(new_item)
+            new_list_widget.setItemWidget(new_item, item_widget)
+
+        next_layout.addWidget(new_list_widget)
+
+        # Sahifa uchun Layout qo'shish
+        self.next_page_window.setLayout(next_layout)
+        self.next_page_window.show()  # Yangi oynani ko'rsatish
+
+app = QApplication([])
+window = MainPage()
+window.show()
+app.exec_()
