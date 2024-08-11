@@ -1051,7 +1051,6 @@ class AdminPage(QWidget):
         self.close()
 
     def delete_product_func(self):
-        # self.core = Database()
         
         name = self.line_edit.text()
         product = {
