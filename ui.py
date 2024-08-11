@@ -898,10 +898,7 @@ class AdminPage(QWidget):
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
         self.delete_product = Button("Delete")
-<<<<<<< HEAD
         self.delete_product.clicked.connect(self.delete_product_func)
-=======
->>>>>>> fea3bd06af26d922718988316c0a6d59a6df9962
 
         self.expired_product = Button("Expired")
         self.expired_product.clicked.connect(self.show_expired_items)
