@@ -125,7 +125,7 @@ class Database:
         
 
     def Get_all_medicine_items(self):
-        self.connect()  # Ulanishni tekshirish va qayta ochish
+        self.connect() 
         with self.connection.cursor() as cursor:
             query = 'SELECT * FROM Medicine_items'
             cursor.execute(query)
@@ -138,12 +138,11 @@ class Database:
     def update_medicine(self, item: dict):
         try:
             with self.connection.cursor() as cursor:
-                # Check if the item exists
+
                 cursor.execute("SELECT COUNT(*) FROM medicine_items WHERE id = %s", (item["id"],))
                 if cursor.fetchone()[0] == 0:
-                    return 0  # No rows found with the given ID
+                    return 0 
 
-                # Perform the update
                 cursor.execute("""
                     UPDATE medicine_items
                     SET name = %s, produced_time = %s, end_time = %s, expiration_date = %s, price = %s, count = %s
@@ -151,10 +150,10 @@ class Database:
                 """, (item['name'], item['produced_time'], item['end_time'], item['expiration_date'], item['price'], item['count'], item["id"]))
 
             self.connection.commit()
-            return 1  # Update was successful
+            return 1 
         except Error as err:
             self.connection.rollback()
-            return str(err)  # Return the error message as a string
+            return str(err)
 
 
     def update_tabele(self, item: dict):

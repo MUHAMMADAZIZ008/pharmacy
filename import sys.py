@@ -9,25 +9,21 @@ class VideoBackground(QWidget):
         super().__init__()
 
         self.setWindowTitle("Video Background")
-        self.setGeometry(100, 100, 800, 600)  # Dastur oynasining o'lchamlari
+        self.setGeometry(100, 100, 800, 600) 
 
-        # Video uchun widget
         self.video_widget = QVideoWidget()
 
-        # Media player
         self.media_player = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.media_player.setVideoOutput(self.video_widget)
 
-        # Video faylni yuklash
-        video_url = QUrl.fromLocalFile("D:/dars python/RealProject/video/223459_small.mp4")  # Manzilni to'g'rilang
+
+        video_url = QUrl.fromLocalFile("D:/dars python/RealProject/video/223459_small.mp4")  
         self.media_player.setMedia(QMediaContent(video_url))
 
-        # Error handling
         self.media_player.error.connect(self.handle_error)
 
         self.media_player.play()
 
-        # Layout qo'shish
         layout = QVBoxLayout()
         layout.addWidget(self.video_widget)
         self.setLayout(layout)
