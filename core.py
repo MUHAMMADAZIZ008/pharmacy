@@ -219,44 +219,32 @@ class Database:
             if self.connection.is_connected():
                 self.connection.close()
 
-    # def delete_medicine(self, medicine_id):
-    #     try:
-    #         with self.connection.cursor() as cursor:
-    #             # Medicine ma'lumotlarini asosiy jadvaldan olish
-    #             cursor.execute("SELECT * FROM Medicine_items WHERE id = %s", (medicine_id,))
-    #             medicine = cursor.fetchone()
 
-    #             if medicine:
-    #                 # Medicine ma'lumotlarini Arxiv_items jadvaliga qo'shish
-    #                 insert_query = """
-    #                     INSERT INTO Arxiv_items (id, name, produced_time, end_time, expiration_date, price, count)
-    #                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-    #                 """
-    #                 cursor.execute(insert_query, medicine)
-
-    #                 # Medicine ma'lumotlarini asosiy jadvaldan o'chirish
-    #                 delete_query = "DELETE FROM Medicine_items WHERE id = %s"
-    #                 cursor.execute(delete_query, (medicine_id,))
-    #                 self.connection.commit()
-    #                 return True
-    #             else:
-    #                 return "Mahsulot topilmadi."
-
-    #     except Exception as e:
-    #         return str(e)
-
-    def delete_medicine(self, medicine_id, name):
-        query_archive = """
-        INSERT INTO Arxiv_items (id, name, produced_time, end_time, expiration_date, price, count)
-        SELECT id, name, produced_time, end_time, expiration_date, price, count 
-        FROM Medicine_items WHERE id = %s AND name = %s
-        """
-        query_delete = "DELETE FROM Medicine_items WHERE id = %s AND name = %s"
-        
+    def delete_medicine(self, medicine_id):
         try:
-            self.cursor.execute(query_archive, (medicine_id, name))
-            self.cursor.execute(query_delete, (medicine_id, name))
-            self.connection.commit()
+            with self.connection.cursor() as cursor:
+                # Medicine ma'lumotlarini asosiy jadvaldan olish
+                cursor.execute("SELECT * FROM Medicine_items WHERE id = %s", (medicine_id,))
+                medicine = cursor.fetchone()
+
+                if medicine:
+                    # Medicine ma'lumotlarini Arxiv_items jadvaliga qo'shish
+                    insert_query = """
+                        INSERT INTO Arxiv_items (id, name, produced_time, end_time, expiration_date, price, count)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """
+                    cursor.execute(insert_query, medicine)
+
+                    # Medicine ma'lumotlarini asosiy jadvaldan o'chirish
+                    delete_query = "DELETE FROM Medicine_items WHERE id = %s"
+                    cursor.execute(delete_query, (medicine_id,))
+                    self.connection.commit()
+                    return True
+                else:
+                    return "Mahsulot topilmadi."
+
         except Exception as e:
-            self.connection.rollback()
             return str(e)
+
+
+

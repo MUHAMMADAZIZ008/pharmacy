@@ -898,12 +898,14 @@ class AdminPage(QWidget):
         #left
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
+        self.delete_product = Button("Delete")
 
         self.expired_product = Button("Expired")
         self.expired_product.clicked.connect(self.show_expired_items)
-        self.delete_product = Button("Delete")
-        self.delete_product.setEnabled(False)
-        self.delete_product.clicked.connect(self.delete_expired_items)
+        self.delete_expired = Button("Delete Exp")
+        self.delete_expired.setEnabled(False)
+        self.delete_expired.clicked.connect(self.delete_expired_items)
+
 
 
         self.add_product = Button("Add")
@@ -913,6 +915,7 @@ class AdminPage(QWidget):
         self.left_box.addWidget(self.update_product)
         self.left_box.addWidget(self.delete_product)
         self.left_box.addWidget(self.expired_product)
+        self.left_box.addWidget(self.delete_expired)
 
         self.hbox2.addWidget(self.madicine_table)
         self.hbox2.addLayout(self.left_box)
@@ -927,43 +930,60 @@ class AdminPage(QWidget):
         self.madicine_table.clicked.connect(self.on_cell_clicked)
         self.show()
 
+
     def show_expired_items(self):
         expired_items = []
+        
+        # Jadvaldagi barcha qatorlarni tekshirish
         for row in range(self.model.rowCount()):
-            end_date = self.model.item(row, 3).text()
-            if datetime.strptime(end_date, '%Y-%m-%d') < datetime.now():
-                expired_items.append(row)
-
+            end_date_str = self.model.item(row, 3).text()  # End time ustunidagi qiymat
+            try:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+                if end_date < datetime.now():
+                    expired_items.append(row)
+            except ValueError:
+                # Agar tarix noto'g'ri formatda bo'lsa, qo'shimcha xato haqida xabar berish
+                QMessageBox.warning(self, "Error", f"Invalid date format in row {row + 1}. Expected yyyy-mm-dd.")
+                return
+        
         if expired_items:
+            # Muddati o'tgan mahsulotlarni ko'rsatish va qolganlarini yashirish
             for row in range(self.model.rowCount()):
-                if row not in expired_items:
-                    self.madicine_table.setRowHidden(row, True)
-                else:
+                if row in expired_items:
                     self.madicine_table.setRowHidden(row, False)
-
-            self.delete_product.setEnabled(True)  # Enable Delete button
+                else:
+                    self.madicine_table.setRowHidden(row, True)
+                    
+            self.delete_product.setEnabled(True)  # Delete tugmasini faollashtirish
         else:
             QMessageBox.information(self, "No Expired Items", "Muddati o'tgan mahsulotlar mavjud emas.")
-            self.delete_product.setEnabled(False)  # Disable Delete button
+            self.delete_product.setEnabled(False)  # Delete tugmasini o'chirish
 
-
-
-
-    def delete_expired_items(self):
-        for row in range(self.model.rowCount() - 1, -1, -1):  # Backward loop to avoid index issues
-            if not self.madicine_table.isRowHidden(row):
-                _id = self.model.item(row, 0).text()
-                product_name = self.model.item(row, 1).text()
-                self.core.delete_medicine(int(_id), product_name)
-                self.model.removeRow(row)
-
-        QMessageBox.information(self, "Success", "Muddati o'tgan mahsulotlar o'chirildi.")
-        self.delete_product.setEnabled(False)  # Disable Delete button after deletion
-        self.show_all_items()  # Show all items after deletion
 
     def show_all_items(self):
-        for row in range(self.model.rowCount()):
-            self.madicine_table.setRowHidden(row, False)
+        all_items = self.core.Get_all_medicine_items()  # `get_all_items` metodini `core` dan chaqiradi
+        self.add_data_to_model(all_items)  # Yangi ma'lumotlarni jadvalga qo'shadi
+        self.madicine_table.setRowHidden(0, False)  # Barcha qatorlarni ko'rsatadi (yarim bayonot)
+
+    def delete_expired_items(self):
+        for row in range(self.model.rowCount() - 1, -1, -1):  # Orqaga qarab tsikl
+            if not self.madicine_table.isRowHidden(row):  # Muddati o'tgan mahsulotlar uchun
+                _id = self.model.item(row, 0).text()  # Mahsulot ID si
+                try:
+                    success = self.core.delete_medicine(int(_id))  # Mahsulotni o'chirish va arxivga saqlash
+                    if not success:
+                        QMessageBox.warning(self, "Error", f"Mahsulot ID {_id} o'chirilishda xato yuz berdi.")
+                        continue  # Xato bo'lsa, keyingi qatorni ko'rib chiqamiz
+                    self.model.removeRow(row)  # Jadvaldan qatorni olib tashlash
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Mahsulot ID {_id} o'chirishda xato: {str(e)}")
+                    continue  # Xato bo'lsa, keyingi qatorni ko'rib chiqamiz
+
+        QMessageBox.information(self, "Success", "Muddati o'tgan mahsulotlar o'chirildi va arxivga saqlandi.")
+        self.delete_product.setEnabled(False)  # Delete tugmasini o'chirib qo'yish
+        self.show_all_items()  # Qolgan mahsulotlarni qayta ko'rsatish
+
+
 
 
 

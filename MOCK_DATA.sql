@@ -34,6 +34,16 @@ CREATE TABLE Users_data(
     phone_number VARCHAR(15) UNIQUE
 );
 
+CREATE TABLE Arxiv_items (
+    id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    produced_time DATE NOT NULL,
+    end_time DATE NOT NULL,
+    expiration_date INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    count INT NOT NULL
+);
+
 
 
 SELECT * FROM Medicine_items;
@@ -89,6 +99,6 @@ VALUES ('Aspirin', '2022-01-01', '2021-01-01', 1, 500, 100),  -- Saqlash muddati
 INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
 VALUES ('Aspiri', '2022-01-01', '2021-01-01', 1, 500, 100),  -- Saqlash muddati 1 yil
        ('Paracetamo', '2021-02-15', '2024-02-15', 1, 800, 200),  -- Saqlash muddati 1 yil
-       ('Ibuprofn', '2024-03-10', '2026-03-10', 2, 1200, 150),  -- Saqlash muddati 2 yil
+       ('Ibuprof', '2024-03-10', '2026-03-10', 2, 1200, 150),  -- Saqlash muddati 2 yil
        ('Amoxicilin', '2021-04-05', '2023-04-05', 3, 1500, 120),  -- Saqlash muddati 3 yil
-       ('Cough Syup', '2024-05-20', '2027-05-20', 3, 950, 80);  -- Saqlash muddati 3 yil
+       ('Cough Syu', '2024-05-20', '2027-05-20', 3, 950, 80);  -- Saqlash muddati 3 yil
