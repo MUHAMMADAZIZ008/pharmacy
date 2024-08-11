@@ -42,6 +42,7 @@ class Edit(QLineEdit):
       def __init__(self, text:str = ""):
             super().__init__()
             self.setPlaceholderText(text)
+            self.setFixedSize(350, 50)
             self.setStyleSheet("""
                 QLineEdit{
                     padding: 10px;

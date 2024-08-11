@@ -35,17 +35,26 @@ class mainPage(QWidget):
         self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("Main Page")
         self.v_box = QVBoxLayout()
+        self.box_btn = QHBoxLayout()
         self.user_btn = Button("Enter as a user")
         self.admin_btn = Button("Enter as a admin")
+
+        self.box_btn.addStretch(50)
+        self.box_btn.addWidget(self.user_btn)
+        self.box_btn.addStretch(20)
+        self.box_btn.addWidget(self.admin_btn)
+        self.box_btn.addStretch(50)
 
         self.main_title = QLabel("Najot Pharmacy")
 
         self.user_btn.clicked.connect(self.enter_user_page)
         self.admin_btn.clicked.connect(self.enter_admin_page)
 
+        self.v_box.addStretch(40)
         self.v_box.addWidget(self.main_title, 0, Qt.AlignCenter)
-        self.v_box.addWidget(self.user_btn, 0, Qt.AlignCenter)
-        self.v_box.addWidget(self.admin_btn, 0, Qt.AlignCenter)
+        self.v_box.addStretch(30)
+        self.v_box.addLayout(self.box_btn)
+        self.v_box.addStretch(50)
 
         self.setLayout(self.v_box)
         self.show()
@@ -70,7 +79,7 @@ class mainPage(QWidget):
         
     def paintEvent(self, event):
         painter = QPainter(self)
-        pixmap = QPixmap("main_bg2.jpg") 
+        pixmap = QPixmap("main_bg3.png") 
         painter.drawPixmap(self.rect(), pixmap) 
         painter.end()
 
@@ -391,7 +400,7 @@ class Medicine_buy(QWidget):
             QHeaderView::section {
                 background-color: #4B0082;
                 color: white;
-                font-size: 15px;
+                font-size: 25px;
                 padding: 5px;
                 border: 1px solid #4B0082;
             }
@@ -587,6 +596,11 @@ class AdminPage(QWidget):
 
         self.delete_product = Button("Delete")
         self.expired_product = Button("Expired")
+
+        self.add_product = Button("Add")
+        self.add_product.clicked.connect(self.add_product_database)
+        
+        self.left_box.addWidget(self.add_product)
         self.left_box.addWidget(self.update_product)
         self.left_box.addWidget(self.delete_product)
         self.left_box.addWidget(self.expired_product)
@@ -636,6 +650,9 @@ class AdminPage(QWidget):
                 items = [QStandardItem(str(field)) for field in row]
                 self.model.appendRow(items)
     
+    def add_product_database(self):
+        self.add_product_page = AddProductPage()
+
     def update_poduct_database(self):
         is_true = False
         for row in range(self.model.rowCount()):
@@ -663,10 +680,56 @@ class AdminPage(QWidget):
             QMessageBox.information(self, "Success", "Data updated in the database successfully.")
         else:
             QMessageBox.information(self, "Success", "There is an input error.")
-
     def exit_sys(self):
         self.close()
 
+
+class AddProductPage(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.setFixedSize(800, 900)
+        self.setWindowIcon(QIcon("logo.png"))
+        self.setWindowTitle("Add Product")
+        self.show()
+        self.UI_init()
+        self.setStyleSheet("""
+            QLabel{
+                font-size: 30px;
+                color: red;
+                font-family: sans-serif;
+            }
+        """)
+    def UI_init(self):
+        self.v_box = QVBoxLayout()
+        self.add_product_name = Edit("Add a new product name")
+        self.add_product_time = Edit("Add a new (yyyy-mm-dd)")
+        self.add_product_end = Edit("Add a new end (yyyy-mm-dd)")
+        self.add_product_term = Edit("Add a new product term")
+        self.add_product_price = Edit("Add a new product price")
+        self.add_product_count = Edit("Add a new product count")
+        self.info_label = QLabel()
+        self.save_btn = Button("Save")
+        self.save_btn.clicked.connect(self.seve_product)
+
+        self.v_box.addWidget(self.add_product_name, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.add_product_time, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.add_product_end, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.add_product_term, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.add_product_price, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.add_product_count, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.info_label, 0, Qt.AlignCenter)
+        self.v_box.addWidget(self.save_btn, 0, Qt.AlignCenter)
+
+        self.setLayout(self.v_box)
+    
+    def seve_product(self):
+        name = self.add_product_name.text()
+        time = self.add_product_time.text()
+        end_time = self.add_product_end.text()
+        term = self.add_product_term.text()
+        price = self.add_product_price.text()
+        count = self.add_product_count.text()
+        
 
 app = QApplication([])
 login_page = mainPage()
