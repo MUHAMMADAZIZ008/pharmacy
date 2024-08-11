@@ -890,11 +890,6 @@ class AdminPage(QWidget):
         delegate = ColorfulDelegate(font_size=20, cell_height=60)
         delegate.apply_delegate(self.madicine_table)
 
-<<<<<<< HEAD
-
-=======
-        # Left layout buttons
->>>>>>> d96f0688cea21737d0e5d50ab9d63803bd4fe8b4
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
         self.delete_product = Button("Delete")
