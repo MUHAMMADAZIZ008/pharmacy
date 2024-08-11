@@ -896,7 +896,6 @@ class AdminPage(QWidget):
         delegate.apply_delegate(self.madicine_table)
 
 
-        #left
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
 
@@ -940,7 +939,7 @@ class AdminPage(QWidget):
                 self.madicine_table.setRowHidden(row, True)
 
     def on_cell_clicked(self, index):
-        if index.column() == 0:
+        if index.column() == 1:
             data = self.model.itemFromIndex(index).text()
             self.line_edit.setText(data)
 
