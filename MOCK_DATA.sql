@@ -40,10 +40,10 @@ SELECT * FROM Medicine_items;
 
 
 INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
-VALUES ('Aspirin', '2024-01-01', '2025-01-01', 1, 500, 100),  -- Saqlash muddati 1 yil
-       ('Paracetamol', '2024-02-15', '2025-02-15', 1, 800, 200),  -- Saqlash muddati 1 yil
+VALUES ('Aspirin', '2022-01-01', '2021-01-01', 1, 500, 100),  -- Saqlash muddati 1 yil
+       ('Paracetamol', '2021-02-15', '2024-02-15', 1, 800, 200),  -- Saqlash muddati 1 yil
        ('Ibuprofen', '2024-03-10', '2026-03-10', 2, 1200, 150),  -- Saqlash muddati 2 yil
-       ('Amoxicillin', '2024-04-05', '2027-04-05', 3, 1500, 120),  -- Saqlash muddati 3 yil
+       ('Amoxicillin', '2021-04-05', '2023-04-05', 3, 1500, 120),  -- Saqlash muddati 3 yil
        ('Cough Syrup', '2024-05-20', '2027-05-20', 3, 950, 80),  -- Saqlash muddati 3 yil
        ('Vitamin C', '2024-06-25', '2027-06-25', 3, 650, 250),  -- Saqlash muddati 3 yil
        ('Antihistamine', '2024-07-15', '2028-07-15', 4, 1700, 90),  -- Saqlash muddati 4 yil
@@ -78,3 +78,17 @@ VALUES ('Aspirin', '2024-01-01', '2025-01-01', 1, 500, 100),  -- Saqlash muddati
        ('Dandruff Shampoo', '2025-09-10', '2027-09-10', 2, 1700, 90),  -- Saqlash muddati 2 yil
        ('Foot Cream', '2025-10-01', '2027-10-01', 2, 1200, 80),  -- Saqlash muddati 2 yil
        ('Wound Ointment', '2025-10-15', '2028-10-15', 3, 2200, 120);  -- Saqlash muddati 3 yil
+
+
+
+
+
+
+-- Muddati o'tkan mahsulotlar
+
+INSERT INTO Medicine_items (name, produced_time, end_time, expiration_date, price, count)
+VALUES ('Aspiri', '2022-01-01', '2021-01-01', 1, 500, 100),  -- Saqlash muddati 1 yil
+       ('Paracetamo', '2021-02-15', '2024-02-15', 1, 800, 200),  -- Saqlash muddati 1 yil
+       ('Ibuprofn', '2024-03-10', '2026-03-10', 2, 1200, 150),  -- Saqlash muddati 2 yil
+       ('Amoxicilin', '2021-04-05', '2023-04-05', 3, 1500, 120),  -- Saqlash muddati 3 yil
+       ('Cough Syup', '2024-05-20', '2027-05-20', 3, 950, 80);  -- Saqlash muddati 3 yil

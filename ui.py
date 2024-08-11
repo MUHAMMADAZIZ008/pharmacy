@@ -899,8 +899,12 @@ class AdminPage(QWidget):
         self.update_product = Button("Update")
         self.update_product.clicked.connect(self.update_poduct_database)
 
-        self.delete_product = Button("Delete")
         self.expired_product = Button("Expired")
+        self.expired_product.clicked.connect(self.show_expired_items)
+        self.delete_product = Button("Delete")
+        self.delete_product.setEnabled(False)
+        self.delete_product.clicked.connect(self.delete_expired_items)
+
 
         self.add_product = Button("Add")
         self.add_product.clicked.connect(self.add_product_database)
@@ -922,6 +926,47 @@ class AdminPage(QWidget):
         self.line_edit.textChanged.connect(self.search_items)
         self.madicine_table.clicked.connect(self.on_cell_clicked)
         self.show()
+
+    def show_expired_items(self):
+        expired_items = []
+        for row in range(self.model.rowCount()):
+            end_date = self.model.item(row, 3).text()
+            if datetime.strptime(end_date, '%Y-%m-%d') < datetime.now():
+                expired_items.append(row)
+
+        if expired_items:
+            for row in range(self.model.rowCount()):
+                if row not in expired_items:
+                    self.madicine_table.setRowHidden(row, True)
+                else:
+                    self.madicine_table.setRowHidden(row, False)
+
+            self.delete_product.setEnabled(True)  # Enable Delete button
+        else:
+            QMessageBox.information(self, "No Expired Items", "Muddati o'tgan mahsulotlar mavjud emas.")
+            self.delete_product.setEnabled(False)  # Disable Delete button
+
+
+
+
+    def delete_expired_items(self):
+        for row in range(self.model.rowCount() - 1, -1, -1):  # Backward loop to avoid index issues
+            if not self.madicine_table.isRowHidden(row):
+                _id = self.model.item(row, 0).text()
+                product_name = self.model.item(row, 1).text()
+                self.core.delete_medicine(int(_id), product_name)
+                self.model.removeRow(row)
+
+        QMessageBox.information(self, "Success", "Muddati o'tgan mahsulotlar o'chirildi.")
+        self.delete_product.setEnabled(False)  # Disable Delete button after deletion
+        self.show_all_items()  # Show all items after deletion
+
+    def show_all_items(self):
+        for row in range(self.model.rowCount()):
+            self.madicine_table.setRowHidden(row, False)
+
+
+
         
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -1107,8 +1152,6 @@ class AddProductPage(QWidget):
 
         result = self.db.insert_product(data)
         self.info_label.setText(result)
-
-
 
 
 app = QApplication([])
