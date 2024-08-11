@@ -125,7 +125,7 @@ class Database:
         
 
     def Get_all_medicine_items(self):
-        self.connect() 
+        self.connect()  
         with self.connection.cursor() as cursor:
             query = 'SELECT * FROM Medicine_items'
             cursor.execute(query)
@@ -216,6 +216,7 @@ class Database:
             if self.connection.is_connected():
                 self.connection.close()
 
+<<<<<<< HEAD
     def Get_all_users_data(self):
         with self.connection.cursor() as cursor:
             query = 'SELECT * FROM medicine_items'
@@ -224,6 +225,9 @@ class Database:
             rows = cursor.fetchall()
             
         return rows
+=======
+# O'zgartirib arxivga saqlab ketadi
+>>>>>>> d96f0688cea21737d0e5d50ab9d63803bd4fe8b4
 
     def delete_user_data(self, user: dict):
         try:
