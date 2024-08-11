@@ -28,7 +28,7 @@ class Button(QPushButton):
                 color: #fff;
                 
             }
-             """)
+            """)
         def on_enter(self, event):
             self.setCursor(Qt.PointingHandCursor)  
             super().enterEvent(event)

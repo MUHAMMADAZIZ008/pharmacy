@@ -70,9 +70,9 @@ class mainPage(QWidget):
 
 
         self.main_title.setStyleSheet("""
-            font-size: 60px;
+            font-size: 65px;
             font-family: sans-serif;
-            color: #211C6A;
+            color: #393E46;
             font-weight: 600;
         """)
         self.user_btn.setFixedSize(300, 70)
@@ -903,7 +903,7 @@ class AdminPage(QWidget):
         self.expired_product = Button("Expired")
         self.expired_product.clicked.connect(self.show_expired_items)
         self.delete_expired = Button("Delete Exp")
-        self.delete_expired.setEnabled(False)
+        # self.delete_expired.setEnabled(False)
         self.delete_expired.clicked.connect(self.delete_expired_items)
 
 
@@ -972,7 +972,7 @@ class AdminPage(QWidget):
                     success = self.core.delete_medicine(int(_id)) 
                     if not success:
                         QMessageBox.warning(self, "Error", f"Mahsulot ID {_id} o'chirilishda xato yuz berdi.")
-                        continue 
+                        continue
                     self.model.removeRow(row) 
                 except Exception as e:
                     QMessageBox.warning(self, "Error", f"Mahsulot ID {_id} o'chirishda xato: {str(e)}")
