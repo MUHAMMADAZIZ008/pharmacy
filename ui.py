@@ -25,10 +25,13 @@ from PyQt5.QtGui import (
     )
 
 from PyQt5.QtCore import Qt
+
 from Line_Edit import PhoneLineEdit
+
 from core import *
 
 from classes import *
+
 
 class mainPage(QWidget):
     def __init__(self) -> None:
@@ -61,7 +64,6 @@ class mainPage(QWidget):
         self.setLayout(self.v_box)
         self.show()
 
-        #style
         self.paintEvent(1)
 
 
@@ -108,7 +110,6 @@ class UserLogin(QWidget):
         self.registr_btn = Button("Registration")
         self.registr_btn.clicked.connect(self.user_register)
 
-        #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
         self.right_box.addStretch(50)
@@ -126,10 +127,8 @@ class UserLogin(QWidget):
 
         self.main_box.addLayout(self.right_box)
 
-        #add all
         self.setLayout(self.main_box)
 
-        #style
         self.login_input.setFixedSize(500, 50)
         self.password_input.setFixedSize(500, 50)
         self.title_right.setStyleSheet("""
@@ -157,7 +156,6 @@ class UserLogin(QWidget):
         if not (login and password):
             self.info_label.setText("Empty login or password!!!")
             return
-        print(_id)
         if not _id:
             self.info_label.setText("Login or password is error!!!")
             return
@@ -169,8 +167,6 @@ class UserLogin(QWidget):
     def user_register(self):
         self.close()
         self.registration = RegistrationPage()
-
-
 
         
 
@@ -198,8 +194,6 @@ class AdminLogin(QWidget):
         self.back_btn.clicked.connect(self.beck_main)
 
 
-
-        #add right
         self.right_box.addStretch(100)
         self.right_box.addWidget(self.title_right, 0, Qt.AlignCenter)
         self.right_box.addStretch(50)
@@ -217,7 +211,6 @@ class AdminLogin(QWidget):
 
         self.main_box.addLayout(self.right_box)
 
-        #add all
         self.setLayout(self.main_box)
 
 
@@ -269,6 +262,7 @@ class RegistrationPage(QWidget):
         self.setStyleSheet("""
             font-size: 30px
         """)
+        self.core = Database()
 
         self.initUI()
     
@@ -328,12 +322,12 @@ class RegistrationPage(QWidget):
 
 
     def create_user(self):
-        self.core = Database()
         username = self.username_input.text()
         password = self.password_input.text()
         phone_number = self.phone_number_input.text()
-        print(phone_number)
         self.info_label.clear()
+        self.warning_number.clear()
+        
         if not (username and password):
             self.info_label.setText("Empty login or password!!!")
             return
@@ -345,11 +339,21 @@ class RegistrationPage(QWidget):
             return
 
         user = {
-            'username' : username,
-            'password' : password,
+            'username': username,
+            'password': password,
             'phone_number': phone_number
-        } 
-        self.core.insert_user(user, self.info_label, self.warning_number)
+        }
+        
+        # Foydalanuvchini saqlash
+        success = self.core.insert_user(user, self.info_label, self.warning_number)
+        if success:
+            self.open_medicine_buy() 
+
+    def open_medicine_buy(self):
+        items = self.core.Get_all_medicine_items()        
+        self.medicine_buy_page = Medicine_buy(items)
+        self.close()
+
 
 
 
@@ -415,7 +419,6 @@ class Medicine_buy(QWidget):
         super().__init__()
         self.medicine_items = items
         self.cart_items = [] 
-        print(self.medicine_items)
         self.showMaximized()
         self.setWindowTitle("Najot Pharmacy")
         self.setWindowIcon(QIcon("login_icon.png"))
@@ -634,6 +637,7 @@ class Medicine_buy(QWidget):
             all_items_text = "No items in cart.\n"
         
         summary_text = f"Najot pharmacy\n{all_items_text}Jami: {total_amount} so'm"
+        
         print(summary_text)
 
 
@@ -658,8 +662,11 @@ class Medicine_buy(QWidget):
             items = [QStandardItem(str(field)) for field in row]
 
             if items:
-                last_item = items[-2]
-                last_item.setText(f"{last_item.text()} so'm")
+                price = items[-2]
+                price.setText(f"{price.text()} so'm")
+                year = items[-3]
+                year.setText(f"{year.text()} yil")
+
 
             self.model.appendRow(items[1:-1])
 
@@ -798,7 +805,6 @@ class AdminPage(QWidget):
     def __init__(self, items: list) -> None:
         super().__init__()
         self.medicine_items = items
-        print(self.medicine_items)
         self.showMaximized()
         self.setWindowTitle("Admin Page")
         self.setWindowIcon(QIcon("login_icon.png"))
