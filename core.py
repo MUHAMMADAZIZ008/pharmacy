@@ -219,6 +219,7 @@ class Database:
             if self.connection.is_connected():
                 self.connection.close()
 
+<<<<<<< HEAD
     def Get_all_users_data(self):
         with self.connection.cursor() as cursor:
             query = 'SELECT * FROM medicine_items'
@@ -241,3 +242,34 @@ class Database:
         except Error as err:
             self.connection.rollback()
             return str(err)
+=======
+
+    def delete_medicine(self, medicine_id):
+        try:
+            with self.connection.cursor() as cursor:
+                # Medicine ma'lumotlarini asosiy jadvaldan olish
+                cursor.execute("SELECT * FROM Medicine_items WHERE id = %s", (medicine_id,))
+                medicine = cursor.fetchone()
+
+                if medicine:
+                    # Medicine ma'lumotlarini Arxiv_items jadvaliga qo'shish
+                    insert_query = """
+                        INSERT INTO Arxiv_items (id, name, produced_time, end_time, expiration_date, price, count)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """
+                    cursor.execute(insert_query, medicine)
+
+                    # Medicine ma'lumotlarini asosiy jadvaldan o'chirish
+                    delete_query = "DELETE FROM Medicine_items WHERE id = %s"
+                    cursor.execute(delete_query, (medicine_id,))
+                    self.connection.commit()
+                    return True
+                else:
+                    return "Mahsulot topilmadi."
+
+        except Exception as e:
+            return str(e)
+
+
+
+>>>>>>> fea3bd06af26d922718988316c0a6d59a6df9962
