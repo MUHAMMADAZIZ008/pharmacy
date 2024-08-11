@@ -266,6 +266,3 @@ class Database:
         except Error as err:
             self.connection.rollback()
             return str(err)
-
-
-
