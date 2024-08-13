@@ -263,6 +263,7 @@ class RegistrationPage(QWidget):
         super().__init__()
         self.setWindowTitle("Registration")
         self.showMaximized()
+        self.core = Database()
         self.setStyleSheet("""
             font-size: 30px
         """)
@@ -344,15 +345,28 @@ class RegistrationPage(QWidget):
             self.warning_number.setText("Enter the number correctly!!!")
             return
 
+        # Check if username exists in the database
+        if self.core.is_username_exists(username):
+            self.info_label.setText("Username already exists!!!")
+            return
+        
+        # Check if phone number exists in the database
+        if self.core.is_phone_number_exists(phone_number):
+            self.warning_number.setText("Phone number already exists!!!")
+            return
+
+        # If both checks pass, insert the user
         user = {
             'username': username,
             'password': password,
             'phone_number': phone_number
         }
         
-        success = self.core.insert_user(user, self.info_label, self.warning_number)
+        success = self.core.insert_user(user)
         if success:
-            self.open_medicine_buy() 
+            self.open_medicine_buy()
+
+
 
     def open_medicine_buy(self):
         items = self.core.Get_all_medicine_items()        
@@ -361,7 +375,7 @@ class RegistrationPage(QWidget):
 
 
 
-
+# Jadvalga style berish
 
 class ColorfulDelegate(QStyledItemDelegate):
     def __init__(self, parent=None, font_size=14, cell_height=30):
@@ -387,6 +401,7 @@ class ColorfulDelegate(QStyledItemDelegate):
         color = column_colors.get(index.column(), "#FFFFFF")
         painter.fillRect(option.rect, QBrush(QColor(color)))
 
+        # jadval ichidagi yozuvlarni oq qilish
         painter.setPen(QColor("#FFFFFF"))
         option.font.setPointSize(self.font_size)
         painter.setFont(option.font)
@@ -404,12 +419,13 @@ class ColorfulDelegate(QStyledItemDelegate):
         for i, width in enumerate(widths):
             table_view.setColumnWidth(i, width)
 
+    # Jadval kataklari o'lchamlarini kattalashtirish
     def set_row_heights(self, table_view):
         row_count = table_view.model().rowCount()
         for row in range(row_count):
             table_view.setRowHeight(row, self.cell_height)
     
-
+    # jadval kengligini sozlaydi
     def apply_delegate(self, table_view):
         table_view.setItemDelegate(self)
 
@@ -504,11 +520,11 @@ class Medicine_buy(QWidget):
         self.Korzina_items.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) 
 
 
-
         self.exit = QPushButton("Chiqish")
         self.exit.setFixedSize(150, 50)
         self.navbar_box.addWidget(self.exit)
         self.exit.clicked.connect(self.exit_sys)
+ 
         self.users_infos = QTableView(self)
 
         self.model = QStandardItemModel()
@@ -923,6 +939,12 @@ class AdminPage(QWidget):
         self.madicine_table.clicked.connect(self.on_cell_clicked)
         self.show()
 
+    def refresh_table(self):
+        updated_items = self.core.Get_all_medicine_items()
+        self.add_data_to_model(updated_items)
+
+
+
     def show_expired_items(self):
         expired_items = []
         
@@ -1009,7 +1031,7 @@ class AdminPage(QWidget):
     
     
     def add_product_database(self):
-        self.add_product_page = AddProductPage()
+        self.add_product_page = AddProductPage(self)
 
 
     def update_poduct_database(self):
@@ -1066,8 +1088,9 @@ class AdminPage(QWidget):
 
 
 class AddProductPage(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, admin_page: AdminPage) -> None:
         super().__init__()
+        self.admin_page = admin_page
         self.setFixedSize(900, 950)
         self.setWindowIcon(QIcon("logo.png"))
         self.setWindowTitle("Add Product")
@@ -1086,20 +1109,20 @@ class AddProductPage(QWidget):
         self.core = Database()
         self.v_box = QVBoxLayout()
 
-        self.name_lable = QLabel("Add a new product name:")
-        self.add_product_name = Edit("...")
+        self.name_lable = QLabel("Add a new product:")
+        self.add_product_name = Edit("Product name ... ")
 
-        self.time_lable = QLabel("Add produced time (yyyy-mm-dd):")   
-        self.add_product_time = Edit("...")
+        self.time_lable = QLabel("Add produced time:")   
+        self.add_product_time = Edit("yyyy-mm-dd")
 
         self.end_lable = QLabel("Add end time (yyyy-mm-dd):")
-        self.add_product_end = Edit("...")
+        self.add_product_end = Edit("yyyy-mm-dd")
     
         self.price_lable = QLabel("Add product price:")        
-        self.add_product_price = Edit("...")
+        self.add_product_price = Edit("Summ")
 
         self.count_lable = QLabel("Add product count:")
-        self.add_product_count = Edit("...")
+        self.add_product_count = Edit("Quantity")
 
 
         self.info_label = QLabel()
@@ -1138,48 +1161,52 @@ class AddProductPage(QWidget):
     
 
     def save_product(self):
-        name = self.add_product_name.text()
-        produced_time = self.add_product_time.text()
-        end_time = self.add_product_end.text()
-        price = self.add_product_price.text()
-        count = self.add_product_count.text()
+            name = self.add_product_name.text()
+            produced_time = self.add_product_time.text()
+            end_time = self.add_product_end.text()
+            price = self.add_product_price.text()
+            count = self.add_product_count.text()
 
-        try:
+            try:
+                produced_date = datetime.strptime(produced_time, '%Y-%m-%d')
+                end_date = datetime.strptime(end_time, '%Y-%m-%d')
+                current_date = datetime.now()
 
-            produced_date = datetime.strptime(produced_time, '%Y-%m-%d')
-            end_date = datetime.strptime(end_time, '%Y-%m-%d')
-            current_date = datetime.now()
+                if end_date < current_date:
+                    self.info_label.setText("Error: Yaroqliligi tugash vaqti hozirgi vaqtdan kichik bolmasligi kerak.")
+                    return
+                if produced_date > current_date:
+                    self.info_label.setText("Error: Ishlab chiqarilgan vaqti hozirgi vaqtdan katta bo'lmasligi kerak.")
+                    return
+                if end_date <= produced_date:
+                    self.info_label.setText("Error: Yaroqliligi tugash vaqti ishlab chiqarilgan vaqtidan katta bo'lishi kerak.")
+                    return
 
-            if end_date < current_date:
-                self.info_label.setText("Error: Yaroqliligi tugash vaqti hozirgi vaqtdan kichik bolmasligi kerak.")
+                expiration_date = end_date.year - produced_date.year
+                if (end_date.month, end_date.day) < (produced_date.month, produced_date.day):
+                    expiration_date -= 1
+
+            except ValueError:
+                self.info_label.setText("Error: Noto'g'ri format! Use yyyy-mm-dd.")
                 return
-            if produced_date > current_date:
-                self.info_label.setText("Error: Ishlab chiqarilgan vaqti hozirgi vaqtdan katta bo'lmasligi kerak.")
-                return
-            if end_date <= produced_date:
-                self.info_label.setText("Error: Yaroqliligi tugash vaqti ishlab chiqarilgan vaqtidan katta bo'lishi kerak.")
-                return
 
-            expiration_date = end_date.year - produced_date.year
-            if (end_date.month, end_date.day) < (produced_date.month, produced_date.day):
-                expiration_date -= 1
+            data = {
+                'name': name,
+                'produced_time': produced_time,
+                'end_time': end_time,
+                'expiration_date': expiration_date,
+                'price': price,
+                'count': count
+            }
 
-        except ValueError:
-            self.info_label.setText("Error: Noto'g'ri format! Use yyyy-mm-dd.")
-            return
-
-
-        data = {
-            'name': name,
-            'produced_time': produced_time,
-            'end_time': end_time,
-            'expiration_date': expiration_date,
-            'price': price,
-            'count': count
-        }
-
-        result = self.db.insert_product(data)
-        self.info_label.setText(result)
+            result = self.db.insert_product(data)
+            self.info_label.setText(result)
+            if result == "Product added successfully":
+                self.close()
+                # AdminPage ni yangilash
+                if self.admin_page:
+                    self.admin_page.refresh_table()
+            self.close()
 
 
 app = QApplication([])

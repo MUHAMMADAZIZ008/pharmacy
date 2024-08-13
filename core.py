@@ -1,67 +1,54 @@
-#Bismillah
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-
 class Database:
     def __init__(self):
-        self.connection = None 
-        self.connect() 
+        self.connection = None
+        self.cursor = None
+        self.connect()
 
     def connect(self):
         if self.connection is None or not self.connection.is_connected():
-            self.connection = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="mr2344",
-                database="pharmacy"
-            )
+            try:
+                self.connection = mysql.connector.connect(
+                    host="localhost",
+                    user="root",
+                    password="mr2344",
+                    database="pharmacy"
+                )
+                self.cursor = self.connection.cursor(buffered=True)
+            except Error as err:
+                print(f"Error: {err}")
+                self.connection = None
+                self.cursor = None
 
+    def close(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
 
-    def insert_user(self, data, info_label, info2_label):
+    def is_username_exists(self, username):
+        query = "SELECT COUNT(*) FROM Users_data WHERE username = %s"
+        self.cursor.execute(query, (username,))
+        result = self.cursor.fetchone()
+        return result[0] > 0
+
+    def is_phone_number_exists(self, phone_number):
+        query = "SELECT COUNT(*) FROM Users_data WHERE phone_number = %s"
+        self.cursor.execute(query, (phone_number,))
+        result = self.cursor.fetchone()
+        return result[0] > 0
+
+    def insert_user(self, user):
         try:
-            with self.connection.cursor() as cursor:
-
-                username = data['username']
-                phone_number = data['phone_number']
-
-                cursor.execute("SELECT COUNT(*) FROM Users_data WHERE username = %s", (username,))
-                username_exists = cursor.fetchone()[0]
-
-                if username_exists:
-                    info_label.setText("User already exists")
-                    return False
-
-                cursor.execute("SELECT COUNT(*) FROM Users_data WHERE phone_number = %s", (phone_number,))
-                phone_number_exists = cursor.fetchone()[0]
-
-                if phone_number_exists:
-                    info2_label.setText("Phone number already exists")
-                    return False
-
-                insert_query = "INSERT INTO Users_data (username, password, phone_number) VALUES (%s, %s, %s)"
-                cursor.execute(insert_query, (username, data['password'], phone_number))
-                self.connection.commit()
-                info_label.setText("User inserted successfully")
-                info2_label.setText("")
-                return True 
-
+            query = "INSERT INTO Users_data (username, password, phone_number) VALUES (%s, %s, %s)"
+            self.cursor.execute(query, (user['username'], user['password'], user['phone_number']))
+            self.connection.commit()
+            return True
         except Error as e:
-            error_message = str(e)
-            if "username" in error_message:
-                info_label.setText("Error with username: " + error_message)
-            elif "phone_number" in error_message:
-                info2_label.setText("Error with phone number: " + error_message)
-            else:
-                info_label.setText("General error: " + error_message)
-                info2_label.setText("General error: " + error_message)
-            return False 
-
-        finally:
-            if self.connection.is_connected():
-                cursor.close()
-                self.connection.close()
-
+            print(f"Error inserting user: {e}")
+            return False
 
 
 # bitta userni ma'lumotlarini olish va yuborish
